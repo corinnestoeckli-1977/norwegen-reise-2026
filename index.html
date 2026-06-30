@@ -2074,7 +2074,26 @@ nav a:hover{color:#fff;border-bottom-color:var(--nr);background:rgba(255,255,255
 <div class="toast" id="toast"></div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
 <script>
+const firebaseConfig = {
+  apiKey: "AIzaSyAHXMr8_XeTClzDn3B4P2TpyqpJOHwrYTs",
+  authDomain: "norwegen-reise-2026.firebaseapp.com",
+  databaseURL: "https://norwegen-reise-2026-default-rtdb.firebaseio.com",
+  projectId: "norwegen-reise-2026",
+  storageBucket: "norwegen-reise-2026.firebasestorage.app",
+  messagingSenderId: "1089340847971",
+  appId: "1:1089340847971:web:e3d63c0e1c310dfbc0c556"
+};
+firebase.initializeApp(firebaseConfig);
+const fbDb = firebase.database();
+const WRITE_PW = 'Norwegen2026';
+function checkWritePw(){
+  const pw = prompt('Passwort zum Speichern/Löschen eingeben:');
+  if(pw !== WRITE_PW){ showToast('❌ Falsches Passwort'); return false; }
+  return true;
+}
 // ===== MAP =====
 const map = L.map('map').setView([64, 14], 4);
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'© OpenStreetMap',maxZoom:18}).addTo(map);
@@ -2161,8 +2180,14 @@ let currentMood='😊';
 function setMood(m){currentMood=m;document.querySelectorAll('.mbtn').forEach(b=>b.classList.remove('sel'));const btn=document.getElementById('mood-'+m);if(btn)btn.classList.add('sel');}
 setMood('😊');
 
-function getDiary(){try{return JSON.parse(localStorage.getItem('diary_2026'))||[];}catch{return[];}}
-function saveDiaryData(d){localStorage.setItem('diary_2026',JSON.stringify(d));}
+let diaryCache=[];
+fbDb.ref('diary_2026').on('value', snap=>{
+  const val=snap.val()||{};
+  diaryCache=Object.keys(val).map(k=>({id:k,...val[k]}));
+  diaryCache.sort((a,b)=>a.date.localeCompare(b.date));
+  renderDiary();
+});
+function getDiary(){return diaryCache;}
 
 function saveDiary(){
   const date=document.getElementById('d-date').value;
@@ -2170,19 +2195,14 @@ function saveDiary(){
   const title=document.getElementById('d-title').value.trim();
   const text=document.getElementById('d-text').value.trim();
   if(!date||!title||!text){showToast('Bitte Datum, Titel und Text ausfüllen!');return;}
+  if(!checkWritePw())return;
   const editId=document.getElementById('diary-edit-id').value;
-  const entries=getDiary();
-  if(editId){
-    const idx=entries.findIndex(e=>e.id===editId);
-    if(idx>=0)entries[idx]={...entries[idx],date,loc,title,text,mood:currentMood};
-  }else{
-    entries.push({id:Date.now().toString(),date,loc,title,text,mood:currentMood});
-  }
-  entries.sort((a,b)=>a.date.localeCompare(b.date));
-  saveDiaryData(entries);
-  clearDiaryForm();
-  renderDiary();
-  showToast('✅ Eintrag gespeichert!');
+  const data={date,loc,title,text,mood:currentMood};
+  const ref=editId?fbDb.ref('diary_2026/'+editId):fbDb.ref('diary_2026').push();
+  ref.set(data).then(()=>{
+    clearDiaryForm();
+    showToast('✅ Eintrag gespeichert!');
+  }).catch(err=>showToast('⚠️ Fehler: '+err.message));
 }
 
 function clearDiaryForm(){
@@ -2211,8 +2231,10 @@ function editDiary(id){
 }
 function deleteDiary(id){
   if(!confirm('Eintrag wirklich löschen?'))return;
-  const entries=getDiary().filter(e=>e.id!==id);
-  saveDiaryData(entries);renderDiary();showToast('🗑️ Eintrag gelöscht');
+  if(!checkWritePw())return;
+  fbDb.ref('diary_2026/'+id).remove().then(()=>{
+    showToast('🗑️ Eintrag gelöscht');
+  }).catch(err=>showToast('⚠️ Fehler: '+err.message));
 }
 function renderDiary(){
   const entries=getDiary();const el=document.getElementById('diary-entries');
@@ -2229,12 +2251,17 @@ function renderDiary(){
       </div>
     </div>`).join('');
 }
-renderDiary();
 
 // ===== PHOTO BOOK =====
 let currentPhotos=[];
-function getPb(){try{return JSON.parse(localStorage.getItem('photobook_2026'))||[];}catch{return[];}}
-function savePbData(d){try{localStorage.setItem('photobook_2026',JSON.stringify(d));}catch{showToast('⚠️ Zu viele Fotos! Bitte weniger gleichzeitig laden.');}}
+let pbCache=[];
+fbDb.ref('photobook_2026').on('value', snap=>{
+  const val=snap.val()||{};
+  pbCache=Object.keys(val).map(k=>({id:k,...val[k]}));
+  pbCache.sort((a,b)=>a.date.localeCompare(b.date));
+  renderPb();
+});
+function getPb(){return pbCache;}
 
 function previewPhotos(input){
   const files=Array.from(input.files);
@@ -2259,14 +2286,13 @@ function savePbEntry(){
   const title=document.getElementById('pb-title').value.trim();
   const text=document.getElementById('pb-text').value.trim();
   if(!date||!title){showToast('Bitte Datum und Titel ausfüllen!');return;}
+  if(!checkWritePw())return;
   const editId=document.getElementById('pb-edit-id').value;
-  const entries=getPb();
-  const entry={id:editId||Date.now().toString(),date,loc,title,text,photos:currentPhotos.map(p=>({name:p.name,data:p.data}))};
-  if(editId){const idx=entries.findIndex(e=>e.id===editId);if(idx>=0)entries[idx]=entry;else entries.push(entry);}
-  else entries.push(entry);
-  entries.sort((a,b)=>a.date.localeCompare(b.date));
-  savePbData(entries);
-  clearPbForm();renderPb();showToast('📷 Fotobuch-Eintrag gespeichert!');
+  const entry={date,loc,title,text,photos:currentPhotos.map(p=>({name:p.name,data:p.data}))};
+  const ref=editId?fbDb.ref('photobook_2026/'+editId):fbDb.ref('photobook_2026').push();
+  ref.set(entry).then(()=>{
+    clearPbForm();showToast('📷 Fotobuch-Eintrag gespeichert!');
+  }).catch(err=>showToast('⚠️ Fehler: '+err.message+' (evtl. zu grosse Fotos)'));
 }
 function clearPbForm(){
   document.getElementById('pb-date').value='';document.getElementById('pb-location').value='';
@@ -2277,7 +2303,10 @@ function clearPbForm(){
 }
 function deletePb(id){
   if(!confirm('Eintrag löschen?'))return;
-  const entries=getPb().filter(e=>e.id!==id);savePbData(entries);renderPb();showToast('🗑️ Gelöscht');
+  if(!checkWritePw())return;
+  fbDb.ref('photobook_2026/'+id).remove().then(()=>{
+    showToast('🗑️ Gelöscht');
+  }).catch(err=>showToast('⚠️ Fehler: '+err.message));
 }
 function renderPb(){
   const entries=getPb();const el=document.getElementById('pb-entries');
@@ -2292,7 +2321,6 @@ function renderPb(){
       ${e.text?`<div class="pb-text">${escHtml(e.text)}</div>`:''}
     </div>`).join('');
 }
-renderPb();
 
 // ===== LIGHTBOX =====
 function openLightbox(src){document.getElementById('lb-img').src=src;document.getElementById('lightbox').classList.add('on');}
