@@ -2418,7 +2418,7 @@ async function loadForecast(){
   document.getElementById('fc-error').style.display='none';
   try{
     const res=await fetch(`https://api.met.no/weatherapi/locationforecast/2.0/compact?lat=${lat}&lon=${lon}`,{
-      headers:{'User-Agent':'norwegen-reise-2026/1.0 corinne.stoeckli@gmx.net'}
+      headers:{'Accept':'application/json'}
     });
     if(!res.ok) throw new Error('HTTP '+res.status);
     const data=await res.json();
@@ -2495,7 +2495,7 @@ async function fcLoadForCard(lat,lon,daysEl,btnEl){
   daysEl.innerHTML='';
   try{
     const res=await fetch(`https://api.met.no/weatherapi/locationforecast/2.0/compact?lat=${lat}&lon=${lon}`,{
-      headers:{'User-Agent':'norwegen-reise-2026/1.0 corinne.stoeckli@gmx.net'}
+      headers:{'Accept':'application/json'}
     });
     if(!res.ok) throw new Error('HTTP '+res.status);
     const data=await res.json();
