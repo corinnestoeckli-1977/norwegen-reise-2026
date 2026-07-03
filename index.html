@@ -1587,6 +1587,43 @@ nav a:hover{color:#fff;border-bottom-color:var(--nr);background:rgba(255,255,255
     <div class="ch-ico" style="background:#3498DB"><i class="fa fa-cloud-sun"></i></div>
     <div><div class="ch-title">Klima &amp; Wetter</div><div class="ch-sub">Temperaturen und wichtige Wetterinfos für jeden Übernachtungsort</div></div>
   </div>
+  <!-- ===== LIVE WETTERVORHERSAGE ===== -->
+  <div style="margin-bottom:36px">
+    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:14px">
+      <div>
+        <div style="font-family:'Playfair Display',serif;font-size:20px;font-weight:700;color:var(--nb)">🌤️ Live-Wettervorhersage</div>
+        <div style="font-size:12px;color:var(--tl);margin-top:2px">Aktuelle Vorhersage · Daten von <a href="https://www.yr.no" target="_blank" style="color:var(--nb)">yr.no</a> / MET Norway</div>
+      </div>
+      <select id="fc-location-sel" onchange="loadForecast()" style="padding:8px 12px;border:2px solid var(--bd);border-radius:8px;font-size:13px;font-family:'Inter',sans-serif;outline:none;color:var(--td)">
+        <option value="55.676,12.568">🇩🇰 Kopenhagen</option>
+        <option value="57.707,11.967">🇸🇪 Göteborg</option>
+        <option value="59.913,10.752">🇳🇴 Oslo</option>
+        <option value="60.593,7.524">⛰️ Finse</option>
+        <option value="60.864,7.111">🏔️ Aurland / Flåm</option>
+        <option value="61.196,6.533">🌊 Balestrand</option>
+        <option value="60.391,5.322">🏙️ Bergen</option>
+        <option value="62.100,7.090">🦅 Geiranger</option>
+        <option value="68.234,14.561">🏝️ Svolvaer / Lofoten</option>
+        <option value="69.273,17.980">🌿 Senja</option>
+        <option value="69.648,18.000">☀️ Sommaroy</option>
+        <option value="69.649,18.956">🦌 Tromsø</option>
+        <option value="70.048,29.744">🏔️ Kirkenes</option>
+        <option value="60.009,6.008">🌹 Rosendal</option>
+        <option value="59.461,6.260">🌊 Sand / Ryfylke</option>
+        <option value="58.986,6.104">🧗 Jørpeland</option>
+        <option value="58.970,5.732">⚓ Stavanger</option>
+        <option value="59.413,5.268">⚓ Haugesund</option>
+      </select>
+    </div>
+    <div id="fc-container" style="background:#fff;border-radius:var(--r);box-shadow:var(--sh);padding:20px;border-top:4px solid #3498DB">
+      <div id="fc-loading" style="text-align:center;padding:30px;color:var(--tl)">⏳ Lade Wettervorhersage...</div>
+      <div id="fc-days" style="display:none;overflow-x:auto">
+        <div id="fc-days-inner" style="display:flex;gap:10px;min-width:max-content;padding-bottom:4px"></div>
+      </div>
+      <div id="fc-error" style="display:none;text-align:center;padding:20px;color:#E74C3C">⚠️ Vorhersage konnte nicht geladen werden.</div>
+    </div>
+  </div>
+
   <div class="grid3">
 
     <div class="wcard">
@@ -2327,6 +2364,113 @@ function renderPb(){
 // ===== LIGHTBOX =====
 function openLightbox(src){document.getElementById('lb-img').src=src;document.getElementById('lightbox').classList.add('on');}
 function closeLightbox(){document.getElementById('lightbox').classList.remove('on');document.getElementById('lb-img').src='';}
+
+// ===== LIVE WETTERVORHERSAGE (yr.no / api.met.no) =====
+const FC_STOPS = [
+  {date:'2026-07-06', val:'55.676,12.568'},
+  {date:'2026-07-09', val:'57.707,11.967'},
+  {date:'2026-07-10', val:'59.913,10.752'},
+  {date:'2026-07-12', val:'60.593,7.524'},
+  {date:'2026-07-13', val:'60.864,7.111'},
+  {date:'2026-07-14', val:'61.196,6.533'},
+  {date:'2026-07-15', val:'60.391,5.322'},
+  {date:'2026-07-20', val:'68.234,14.561'},
+  {date:'2026-07-24', val:'69.273,17.980'},
+  {date:'2026-07-26', val:'69.648,18.000'},
+  {date:'2026-07-28', val:'69.649,18.956'},
+  {date:'2026-08-01', val:'70.048,29.744'},
+  {date:'2026-08-04', val:'60.391,5.322'},
+  {date:'2026-08-06', val:'60.009,6.008'},
+  {date:'2026-08-08', val:'59.461,6.260'},
+  {date:'2026-08-09', val:'58.986,6.104'},
+  {date:'2026-08-10', val:'58.970,5.732'},
+  {date:'2026-08-12', val:'59.413,5.268'}
+];
+
+function fcSymbolEmoji(code){
+  if(!code)return'🌡️';
+  if(code.includes('clearsky'))return'☀️';
+  if(code.includes('fair'))return'🌤️';
+  if(code.includes('partlycloudy'))return'⛅';
+  if(code.includes('cloudy'))return'☁️';
+  if(code.includes('fog'))return'🌫️';
+  if(code.includes('snow'))return'❄️';
+  if(code.includes('sleet'))return'🌨️';
+  if(code.includes('heavyrain')||code.includes('heavysleet'))return'🌧️';
+  if(code.includes('rain')||code.includes('drizzle'))return'🌦️';
+  if(code.includes('thunder'))return'⛈️';
+  return'🌡️';
+}
+
+function fcAutoSelect(){
+  const today=new Date().toISOString().slice(0,10);
+  let sel=FC_STOPS[0].val;
+  for(const s of FC_STOPS){ if(today>=s.date) sel=s.val; }
+  const opt=document.querySelector('#fc-location-sel option[value="'+sel+'"]');
+  if(opt) document.getElementById('fc-location-sel').value=sel;
+}
+
+async function loadForecast(){
+  const sel=document.getElementById('fc-location-sel').value;
+  const [lat,lon]=sel.split(',');
+  document.getElementById('fc-loading').style.display='block';
+  document.getElementById('fc-days').style.display='none';
+  document.getElementById('fc-error').style.display='none';
+  try{
+    const res=await fetch(`https://api.met.no/weatherapi/locationforecast/2.0/compact?lat=${lat}&lon=${lon}`,{
+      headers:{'User-Agent':'norwegen-reise-2026/1.0 corinne.stoeckli@gmx.net'}
+    });
+    if(!res.ok) throw new Error('HTTP '+res.status);
+    const data=await res.json();
+    const ts=data.properties.timeseries;
+    // Tägliche Zusammenfassung: pro Tag Mittags-Symbol + Min/Max-Temp
+    const days={};
+    ts.forEach(t=>{
+      const day=t.time.slice(0,10);
+      const hour=parseInt(t.time.slice(11,13));
+      const temp=t.data.instant.details.air_temperature;
+      const precip=t.data.next_6_hours?.details?.precipitation_amount||t.data.next_1_hours?.details?.precipitation_amount||0;
+      const sym=t.data.next_6_hours?.summary?.symbol_code||t.data.next_1_hours?.summary?.symbol_code||'';
+      if(!days[day]) days[day]={min:temp,max:temp,sym:'',precip:0,noonSym:''};
+      if(temp<days[day].min) days[day].min=temp;
+      if(temp>days[day].max) days[day].max=temp;
+      days[day].precip+=precip;
+      if(hour>=11&&hour<=14&&sym&&!days[day].noonSym) days[day].noonSym=sym;
+      if(sym&&!days[day].sym) days[day].sym=sym;
+    });
+    const dayKeys=Object.keys(days).sort().slice(0,9);
+    const months=['Jan','Feb','Mär','Apr','Mai','Jun','Jul','Aug','Sep','Okt','Nov','Dez'];
+    const weekdays=['So','Mo','Di','Mi','Do','Fr','Sa'];
+    const inner=document.getElementById('fc-days-inner');
+    inner.innerHTML=dayKeys.map(d=>{
+      const dd=days[d];
+      const sym=dd.noonSym||dd.sym;
+      const emoji=fcSymbolEmoji(sym);
+      const dt=new Date(d+'T12:00:00Z');
+      const wd=weekdays[dt.getUTCDay()];
+      const dm=dt.getUTCDate()+'. '+months[dt.getUTCMonth()];
+      const prec=dd.precip>0?`<div style="font-size:11px;color:#2980B9;margin-top:3px">💧${dd.precip.toFixed(1)}mm</div>`:'';
+      return`<div style="background:var(--lb);border-radius:10px;padding:12px 14px;text-align:center;min-width:80px;flex-shrink:0">
+        <div style="font-size:11px;font-weight:700;color:var(--tl);text-transform:uppercase">${wd}</div>
+        <div style="font-size:11px;color:var(--tl);margin-bottom:6px">${dm}</div>
+        <div style="font-size:30px;line-height:1">${emoji}</div>
+        <div style="font-size:13px;font-weight:700;color:var(--nb);margin-top:6px">${Math.round(dd.max)}°</div>
+        <div style="font-size:11px;color:var(--tl)">${Math.round(dd.min)}°</div>
+        ${prec}
+      </div>`;
+    }).join('');
+    document.getElementById('fc-loading').style.display='none';
+    document.getElementById('fc-days').style.display='block';
+  }catch(e){
+    document.getElementById('fc-loading').style.display='none';
+    document.getElementById('fc-error').style.display='block';
+  }
+}
+
+document.addEventListener('DOMContentLoaded',()=>{
+  fcAutoSelect();
+  loadForecast();
+});
 
 // ===== UTILS =====
 function fmtDate(d){if(!d)return'';const[y,m,day]=d.split('-');const months=['Jan','Feb','Mär','Apr','Mai','Jun','Jul','Aug','Sep','Okt','Nov','Dez'];return`${parseInt(day)}. ${months[parseInt(m)-1]} ${y}`;}
