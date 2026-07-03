@@ -2467,9 +2467,110 @@ async function loadForecast(){
   }
 }
 
+// Koordinaten je Standort (für Per-Karte-Forecasts)
+const FC_COORDS = {
+  'kopenhagen':[55.676,12.568],'göteborg':[57.707,11.967],'oslo':[59.913,10.752],
+  'finse':[60.593,7.524],'aurland':[60.864,7.111],'flåm':[60.864,7.111],
+  'balestrand':[61.196,6.533],'bergen':[60.391,5.322],'havila':[62.5,6.0],
+  'geiranger':[62.100,7.090],'trollstigen':[62.100,7.090],'svolvaer':[68.234,14.561],
+  'lofoten':[68.234,14.561],'mefjord':[69.273,17.980],'senja':[69.273,17.980],
+  'sommaroy':[69.648,18.000],'tromsø':[69.649,18.956],'nordkapp':[71.172,25.784],
+  'hurtigruten':[69.649,18.956],'kirkenes':[70.048,29.744],'rosendal':[60.009,6.008],
+  'sand':[59.461,6.260],'ryfylke':[59.461,6.260],'jørpeland':[58.986,6.104],
+  'preikestolen':[58.986,6.104],'stavanger':[58.970,5.732],'haugesund':[59.413,5.268]
+};
+
+function fcCoordsForCard(h3Text){
+  const t=h3Text.toLowerCase().replace(/[^a-zæøå\s]/g,'');
+  for(const [key,coords] of Object.entries(FC_COORDS)){
+    if(t.includes(key)) return coords;
+  }
+  return null;
+}
+
+async function fcLoadForCard(lat,lon,daysEl,btnEl){
+  btnEl.disabled=true;
+  btnEl.textContent='⏳ Lade...';
+  daysEl.style.display='block';
+  daysEl.innerHTML='';
+  try{
+    const res=await fetch(`https://api.met.no/weatherapi/locationforecast/2.0/compact?lat=${lat}&lon=${lon}`,{
+      headers:{'User-Agent':'norwegen-reise-2026/1.0 corinne.stoeckli@gmx.net'}
+    });
+    if(!res.ok) throw new Error('HTTP '+res.status);
+    const data=await res.json();
+    const ts=data.properties.timeseries;
+    const days={};
+    ts.forEach(t=>{
+      const day=t.time.slice(0,10);
+      const hour=parseInt(t.time.slice(11,13));
+      const temp=t.data.instant.details.air_temperature;
+      const precip=t.data.next_6_hours?.details?.precipitation_amount||t.data.next_1_hours?.details?.precipitation_amount||0;
+      const sym=t.data.next_6_hours?.summary?.symbol_code||t.data.next_1_hours?.summary?.symbol_code||'';
+      if(!days[day]) days[day]={min:temp,max:temp,sym:'',precip:0,noonSym:''};
+      if(temp<days[day].min) days[day].min=temp;
+      if(temp>days[day].max) days[day].max=temp;
+      days[day].precip+=precip;
+      if(hour>=11&&hour<=14&&sym&&!days[day].noonSym) days[day].noonSym=sym;
+      if(sym&&!days[day].sym) days[day].sym=sym;
+    });
+    const dayKeys=Object.keys(days).sort().slice(0,9);
+    const months=['Jan','Feb','Mär','Apr','Mai','Jun','Jul','Aug','Sep','Okt','Nov','Dez'];
+    const weekdays=['So','Mo','Di','Mi','Do','Fr','Sa'];
+    daysEl.innerHTML='<div style="display:flex;gap:8px;overflow-x:auto;padding-bottom:4px">'+
+      dayKeys.map(d=>{
+        const dd=days[d];
+        const sym=dd.noonSym||dd.sym;
+        const emoji=fcSymbolEmoji(sym);
+        const dt=new Date(d+'T12:00:00Z');
+        const wd=weekdays[dt.getUTCDay()];
+        const dm=dt.getUTCDate()+'.'+months[dt.getUTCMonth()];
+        const prec=dd.precip>0?`<div style="font-size:10px;color:#2980B9">💧${dd.precip.toFixed(1)}mm</div>`:'';
+        return`<div style="background:var(--lb);border-radius:8px;padding:8px 10px;text-align:center;min-width:64px;flex-shrink:0">
+          <div style="font-size:10px;font-weight:700;color:var(--tl)">${wd} ${dm}</div>
+          <div style="font-size:22px;line-height:1.2">${emoji}</div>
+          <div style="font-size:12px;font-weight:700;color:var(--nb)">${Math.round(dd.max)}°</div>
+          <div style="font-size:10px;color:var(--tl)">${Math.round(dd.min)}°</div>
+          ${prec}
+        </div>`;
+      }).join('')+
+    '</div><div style="font-size:10px;color:var(--tl);margin-top:6px;text-align:right">📡 yr.no / MET Norway</div>';
+    btnEl.textContent='▲ Vorhersage ausblenden';
+    btnEl.disabled=false;
+    btnEl.onclick=()=>{
+      daysEl.style.display=daysEl.style.display==='none'?'block':'none';
+      btnEl.textContent=daysEl.style.display==='none'?'🌤️ Vorhersage anzeigen':'▲ Vorhersage ausblenden';
+    };
+  }catch(e){
+    daysEl.innerHTML='<div style="font-size:12px;color:#E74C3C">⚠️ Vorhersage nicht verfügbar</div>';
+    btnEl.textContent='🌤️ Nochmal versuchen';
+    btnEl.disabled=false;
+  }
+}
+
+function fcInitCards(){
+  document.querySelectorAll('.wcard').forEach(card=>{
+    const h3=card.querySelector('h3');
+    if(!h3) return;
+    const coords=fcCoordsForCard(h3.textContent);
+    if(!coords) return;
+    const daysEl=document.createElement('div');
+    daysEl.style.display='none';
+    daysEl.style.marginTop='10px';
+    const btn=document.createElement('button');
+    btn.className='btn btn-s';
+    btn.style.cssText='margin-top:10px;font-size:12px;padding:6px 12px;width:100%';
+    btn.textContent='🌤️ Vorhersage anzeigen';
+    btn.onclick=()=>fcLoadForCard(coords[0],coords[1],daysEl,btn);
+    card.appendChild(btn);
+    card.appendChild(daysEl);
+  });
+}
+
 document.addEventListener('DOMContentLoaded',()=>{
   fcAutoSelect();
   loadForecast();
+  fcInitCards();
 });
 
 // ===== UTILS =====
