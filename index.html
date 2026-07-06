@@ -2141,9 +2141,6 @@ const firebaseConfig = {
 };
 firebase.initializeApp(firebaseConfig);
 const fbDb = firebase.database();
-try{ fbDb.ref('.info/connected'); firebase.database().goOnline(); } catch(e){}
-fbDb.ref('diary_2026').keepSynced(true);
-fbDb.ref('photobook_2026').keepSynced(true);
 const WRITE_PW = 'Norwegen2026';
 let _pwResolve = null;
 function checkWritePw(){
