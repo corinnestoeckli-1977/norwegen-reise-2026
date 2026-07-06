@@ -2112,6 +2112,20 @@ nav a:hover{color:#fff;border-bottom-color:var(--nr);background:rgba(255,255,255
 
 <div class="toast" id="toast"></div>
 
+<!-- Passwort-Modal -->
+<div id="pw-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:9998;align-items:center;justify-content:center">
+  <div style="background:#fff;border-radius:16px;padding:28px 24px;max-width:320px;width:90%;box-shadow:0 8px 32px rgba(0,0,0,.3)">
+    <div style="font-family:'Playfair Display',serif;font-size:20px;font-weight:700;color:var(--nb);margin-bottom:6px">🔒 Passwort</div>
+    <div style="font-size:13px;color:var(--tl);margin-bottom:16px">Bitte Passwort zum Speichern eingeben</div>
+    <input id="pw-modal-input" type="password" placeholder="Passwort..." style="width:100%;padding:10px 13px;border:2px solid var(--bd);border-radius:8px;font-size:15px;font-family:'Inter',sans-serif;outline:none;margin-bottom:6px" onkeydown="if(event.key==='Enter')pwModalConfirm()">
+    <div id="pw-modal-err" style="display:none;font-size:12px;color:#E74C3C;margin-bottom:8px">❌ Falsches Passwort</div>
+    <div style="display:flex;gap:10px;margin-top:12px">
+      <button class="btn btn-p" onclick="pwModalConfirm()" style="flex:1">Bestätigen</button>
+      <button class="btn btn-s" onclick="pwModalCancel()" style="flex:1">Abbrechen</button>
+    </div>
+  </div>
+</div>
+
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
@@ -2128,10 +2142,35 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const fbDb = firebase.database();
 const WRITE_PW = 'Norwegen2026';
+let _pwResolve = null;
 function checkWritePw(){
-  const pw = prompt('Passwort zum Speichern/Löschen eingeben:');
-  if(pw !== WRITE_PW){ showToast('❌ Falsches Passwort'); return false; }
-  return true;
+  return new Promise(resolve=>{
+    _pwResolve = resolve;
+    const modal = document.getElementById('pw-modal');
+    const inp = document.getElementById('pw-modal-input');
+    const err = document.getElementById('pw-modal-err');
+    err.style.display='none';
+    inp.value='';
+    modal.style.display='flex';
+    setTimeout(()=>inp.focus(),100);
+  });
+}
+function pwModalConfirm(){
+  const inp = document.getElementById('pw-modal-input');
+  const err = document.getElementById('pw-modal-err');
+  if(inp.value !== WRITE_PW){
+    err.style.display='block';
+    inp.value='';
+    inp.focus();
+    return;
+  }
+  document.getElementById('pw-modal').style.display='none';
+  if(_pwResolve){ _pwResolve(true); _pwResolve=null; }
+}
+function pwModalCancel(){
+  document.getElementById('pw-modal').style.display='none';
+  document.getElementById('pw-modal-err').style.display='none';
+  if(_pwResolve){ _pwResolve(false); _pwResolve=null; }
 }
 // ===== MAP =====
 const map = L.map('map').setView([64, 14], 4);
@@ -2228,13 +2267,13 @@ fbDb.ref('diary_2026').on('value', snap=>{
 });
 function getDiary(){return diaryCache;}
 
-function saveDiary(){
+async function saveDiary(){
   const date=document.getElementById('d-date').value;
   const loc=document.getElementById('d-location').value;
   const title=document.getElementById('d-title').value.trim();
   const text=document.getElementById('d-text').value.trim();
   if(!date||!title||!text){showToast('Bitte Datum, Titel und Text ausfüllen!');return;}
-  if(!checkWritePw())return;
+  if(!await checkWritePw())return;
   const editId=document.getElementById('diary-edit-id').value;
   const data={date,loc,title,text,mood:currentMood};
   const ref=editId?fbDb.ref('diary_2026/'+editId):fbDb.ref('diary_2026').push();
@@ -2268,9 +2307,9 @@ function editDiary(id){
   setMood(e.mood||'😊');
   document.getElementById('tagebuch').scrollIntoView({behavior:'smooth'});
 }
-function deleteDiary(id){
+async function deleteDiary(id){
   if(!confirm('Eintrag wirklich löschen?'))return;
-  if(!checkWritePw())return;
+  if(!await checkWritePw())return;
   fbDb.ref('diary_2026/'+id).remove().then(()=>{
     showToast('🗑️ Eintrag gelöscht');
   }).catch(err=>showToast('⚠️ Fehler: '+err.message));
@@ -2319,13 +2358,13 @@ function previewPhotos(input){
 }
 function removePreview(i){currentPhotos.splice(i,1);const pv=document.getElementById('pb-previews');if(pv.children[i])pv.removeChild(pv.children[i]);}
 
-function savePbEntry(){
+async function savePbEntry(){
   const date=document.getElementById('pb-date').value;
   const loc=document.getElementById('pb-location').value;
   const title=document.getElementById('pb-title').value.trim();
   const text=document.getElementById('pb-text').value.trim();
   if(!date||!title){showToast('Bitte Datum und Titel ausfüllen!');return;}
-  if(!checkWritePw())return;
+  if(!await checkWritePw())return;
   const editId=document.getElementById('pb-edit-id').value;
   const entry={date,loc,title,text,photos:currentPhotos.map(p=>({name:p.name,data:p.data}))};
   const ref=editId?fbDb.ref('photobook_2026/'+editId):fbDb.ref('photobook_2026').push();
@@ -2340,9 +2379,9 @@ function clearPbForm(){
   document.getElementById('pb-previews').innerHTML='';
   document.getElementById('pb-files').value='';currentPhotos=[];
 }
-function deletePb(id){
+async function deletePb(id){
   if(!confirm('Eintrag löschen?'))return;
-  if(!checkWritePw())return;
+  if(!await checkWritePw())return;
   fbDb.ref('photobook_2026/'+id).remove().then(()=>{
     showToast('🗑️ Gelöscht');
   }).catch(err=>showToast('⚠️ Fehler: '+err.message));
