@@ -2002,7 +2002,8 @@ nav a:hover{color:#fff;border-bottom-color:var(--nr);background:rgba(255,255,255
 <div class="wrap">
   <div class="ch-hd">
     <div class="ch-ico" style="background:#E74C3C"><i class="fa fa-book-open"></i></div>
-    <div><div class="ch-title">Reisetagebuch</div><div class="ch-sub">Deine Erlebnisse festhalten · wird lokal auf deinem Laptop gespeichert</div></div>
+    <div style="flex:1"><div class="ch-title">Reisetagebuch</div><div class="ch-sub">Deine Erlebnisse festhalten · in Firebase gespeichert</div></div>
+    <button class="btn btn-s" onclick="backupDiary()" style="flex-shrink:0"><i class="fa fa-download"></i> Backup</button>
   </div>
 
   <div class="form-box" id="diary-form-box">
@@ -2047,6 +2048,12 @@ nav a:hover{color:#fff;border-bottom-color:var(--nr);background:rgba(255,255,255
   </div>
 
   <div id="diary-entries" class="d-entries"></div>
+
+  <!-- Papierkorb Tagebuch -->
+  <div style="margin-top:20px">
+    <button class="btn btn-s" onclick="toggleTrash('diary')" style="font-size:12px"><i class="fa fa-trash"></i> Papierkorb anzeigen</button>
+    <div id="diary-trash-entries" style="display:none;margin-top:12px"></div>
+  </div>
 </div>
 </section>
 
@@ -2055,7 +2062,8 @@ nav a:hover{color:#fff;border-bottom-color:var(--nr);background:rgba(255,255,255
 <div class="wrap">
   <div class="ch-hd">
     <div class="ch-ico" style="background:#F39C12"><i class="fa fa-camera"></i></div>
-    <div><div class="ch-title">Fotobuch</div><div class="ch-sub">Deine Reisefotos mit Text festhalten · Fotos von deinem Gerät</div></div>
+    <div style="flex:1"><div class="ch-title">Fotobuch</div><div class="ch-sub">Deine Reisefotos mit Text festhalten · Fotos von deinem Gerät</div></div>
+    <button class="btn btn-s" onclick="backupPb()" style="flex-shrink:0"><i class="fa fa-download"></i> Backup</button>
   </div>
 
   <div class="form-box" id="pb-form-box">
@@ -2094,6 +2102,12 @@ nav a:hover{color:#fff;border-bottom-color:var(--nr);background:rgba(255,255,255
   </div>
 
   <div id="pb-entries" class="pb-entries"></div>
+
+  <!-- Papierkorb Fotobuch -->
+  <div style="margin-top:20px">
+    <button class="btn btn-s" onclick="toggleTrash('pb')" style="font-size:12px"><i class="fa fa-trash"></i> Papierkorb anzeigen</button>
+    <div id="pb-trash-entries" style="display:none;margin-top:12px"></div>
+  </div>
 </div>
 </section>
 
@@ -2310,11 +2324,66 @@ function editDiary(id){
   document.getElementById('tagebuch').scrollIntoView({behavior:'smooth'});
 }
 async function deleteDiary(id){
-  if(!confirm('Eintrag wirklich löschen?'))return;
+  if(!confirm('Eintrag in den Papierkorb verschieben?'))return;
   if(!await checkWritePw())return;
-  fbDb.ref('diary_2026/'+id).remove().then(()=>{
-    showToast('🗑️ Eintrag gelöscht');
+  const entry=diaryCache.find(e=>e.id===id);
+  if(!entry)return;
+  const trashEntry={...entry, deletedAt: new Date().toISOString()};
+  fbDb.ref('diary_2026_trash/'+id).set(trashEntry)
+    .then(()=>fbDb.ref('diary_2026/'+id).remove())
+    .then(()=>showToast('🗑️ In Papierkorb verschoben'))
+    .catch(err=>showToast('⚠️ Fehler: '+err.message));
+}
+
+async function restoreDiary(id){
+  if(!await checkWritePw())return;
+  fbDb.ref('diary_2026_trash/'+id).once('value').then(snap=>{
+    const entry=snap.val();
+    if(!entry)return;
+    const {deletedAt,...clean}=entry;
+    return fbDb.ref('diary_2026/'+id).set(clean)
+      .then(()=>fbDb.ref('diary_2026_trash/'+id).remove())
+      .then(()=>showToast('✅ Eintrag wiederhergestellt'));
   }).catch(err=>showToast('⚠️ Fehler: '+err.message));
+}
+
+let diaryTrashCache=[];
+fbDb.ref('diary_2026_trash').on('value', snap=>{
+  const val=snap.val()||{};
+  diaryTrashCache=Object.keys(val).map(k=>({id:k,...val[k]}));
+  diaryTrashCache.sort((a,b)=>b.deletedAt.localeCompare(a.deletedAt));
+  renderDiaryTrash();
+});
+
+function renderDiaryTrash(){
+  const el=document.getElementById('diary-trash-entries');
+  if(!el)return;
+  if(!diaryTrashCache.length){el.innerHTML='<div style="font-size:13px;color:var(--tl);padding:10px">Papierkorb ist leer.</div>';return;}
+  el.innerHTML=diaryTrashCache.map(e=>`
+    <div class="d-entry" style="border-left-color:#E74C3C;opacity:.8">
+      <div class="d-title" style="font-size:15px">${e.mood||''} ${e.title}</div>
+      <div class="d-meta">${fmtDate(e.date)}${e.loc?' · '+e.loc:''} · gelöscht: ${new Date(e.deletedAt).toLocaleDateString('de-CH')}</div>
+      <div class="d-actions" style="margin-top:8px">
+        <button class="btn btn-s" style="font-size:12px" onclick="restoreDiary('${e.id}')"><i class="fa fa-rotate-left"></i> Wiederherstellen</button>
+      </div>
+    </div>`).join('');
+}
+
+function toggleTrash(type){
+  const el=document.getElementById(type+'-trash-entries');
+  const btn=el.previousElementSibling;
+  const visible=el.style.display!=='none';
+  el.style.display=visible?'none':'block';
+  btn.innerHTML=visible?'<i class="fa fa-trash"></i> Papierkorb anzeigen':'<i class="fa fa-trash"></i> Papierkorb ausblenden';
+}
+
+function backupDiary(){
+  const data=JSON.stringify({diary:diaryCache, exportedAt:new Date().toISOString()},null,2);
+  const a=document.createElement('a');
+  a.href='data:application/json;charset=utf-8,'+encodeURIComponent(data);
+  a.download='tagebuch-backup-'+new Date().toISOString().slice(0,10)+'.json';
+  a.click();
+  showToast('💾 Backup heruntergeladen');
 }
 function renderDiary(){
   const entries=getDiary();const el=document.getElementById('diary-entries');
@@ -2385,11 +2454,59 @@ function clearPbForm(){
   document.getElementById('pb-files').value='';currentPhotos=[];
 }
 async function deletePb(id){
-  if(!confirm('Eintrag löschen?'))return;
+  if(!confirm('Eintrag in den Papierkorb verschieben?'))return;
   if(!await checkWritePw())return;
-  fbDb.ref('photobook_2026/'+id).remove().then(()=>{
-    showToast('🗑️ Gelöscht');
+  const entry=pbCache.find(e=>e.id===id);
+  if(!entry)return;
+  const trashEntry={...entry, deletedAt: new Date().toISOString()};
+  fbDb.ref('photobook_2026_trash/'+id).set(trashEntry)
+    .then(()=>fbDb.ref('photobook_2026/'+id).remove())
+    .then(()=>showToast('🗑️ In Papierkorb verschoben'))
+    .catch(err=>showToast('⚠️ Fehler: '+err.message));
+}
+
+async function restorePb(id){
+  if(!await checkWritePw())return;
+  fbDb.ref('photobook_2026_trash/'+id).once('value').then(snap=>{
+    const entry=snap.val();
+    if(!entry)return;
+    const {deletedAt,...clean}=entry;
+    return fbDb.ref('photobook_2026/'+id).set(clean)
+      .then(()=>fbDb.ref('photobook_2026_trash/'+id).remove())
+      .then(()=>showToast('✅ Eintrag wiederhergestellt'));
   }).catch(err=>showToast('⚠️ Fehler: '+err.message));
+}
+
+let pbTrashCache=[];
+fbDb.ref('photobook_2026_trash').on('value', snap=>{
+  const val=snap.val()||{};
+  pbTrashCache=Object.keys(val).map(k=>({id:k,...val[k]}));
+  pbTrashCache.sort((a,b)=>b.deletedAt.localeCompare(a.deletedAt));
+  renderPbTrash();
+});
+
+function renderPbTrash(){
+  const el=document.getElementById('pb-trash-entries');
+  if(!el)return;
+  if(!pbTrashCache.length){el.innerHTML='<div style="font-size:13px;color:var(--tl);padding:10px">Papierkorb ist leer.</div>';return;}
+  el.innerHTML=pbTrashCache.map(e=>`
+    <div class="pb-entry" style="opacity:.8">
+      <div class="pb-hd">
+        <div><div style="font-family:Playfair Display,serif;font-size:17px;font-weight:700">${e.title}</div>
+        <div style="font-size:11px;opacity:.8">${fmtDate(e.date)}${e.loc?' · '+e.loc:''} · gelöscht: ${new Date(e.deletedAt).toLocaleDateString('de-CH')}</div></div>
+        <button class="btn btn-s" style="font-size:12px;padding:5px 10px" onclick="restorePb('${e.id}')"><i class="fa fa-rotate-left"></i> Wiederherstellen</button>
+      </div>
+    </div>`).join('');
+}
+
+function backupPb(){
+  const exportData=pbCache.map(e=>({...e,photos:(e.photos||[]).map(p=>({name:p.name}))}));
+  const data=JSON.stringify({fotobuch:exportData, exportedAt:new Date().toISOString()},null,2);
+  const a=document.createElement('a');
+  a.href='data:application/json;charset=utf-8,'+encodeURIComponent(data);
+  a.download='fotobuch-backup-'+new Date().toISOString().slice(0,10)+'.json';
+  a.click();
+  showToast('💾 Backup heruntergeladen (ohne Fotos)');
 }
 function renderPb(){
   const entries=getPb();const el=document.getElementById('pb-entries');
