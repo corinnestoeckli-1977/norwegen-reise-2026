@@ -2141,6 +2141,9 @@ const firebaseConfig = {
 };
 firebase.initializeApp(firebaseConfig);
 const fbDb = firebase.database();
+try{ fbDb.ref('.info/connected'); firebase.database().goOnline(); } catch(e){}
+fbDb.ref('diary_2026').keepSynced(true);
+fbDb.ref('photobook_2026').keepSynced(true);
 const WRITE_PW = 'Norwegen2026';
 let _pwResolve = null;
 function checkWritePw(){
@@ -2259,10 +2262,12 @@ function setMood(m){currentMood=m;document.querySelectorAll('.mbtn').forEach(b=>
 setMood('😊');
 
 let diaryCache=[];
+let diaryLoaded=false;
 fbDb.ref('diary_2026').on('value', snap=>{
   const val=snap.val()||{};
   diaryCache=Object.keys(val).map(k=>({id:k,...val[k]}));
   diaryCache.sort((a,b)=>a.date.localeCompare(b.date));
+  diaryLoaded=true;
   renderDiary();
 });
 function getDiary(){return diaryCache;}
@@ -2316,6 +2321,7 @@ async function deleteDiary(id){
 }
 function renderDiary(){
   const entries=getDiary();const el=document.getElementById('diary-entries');
+  if(!diaryLoaded){el.innerHTML='<div class="empty"><div class="eico">⏳</div><div>Lade Einträge...</div></div>';return;}
   if(!entries.length){el.innerHTML='<div class="empty"><div class="eico">📖</div><div>Noch keine Einträge. Beginne dein Tagebuch!</div></div>';return;}
   el.innerHTML=entries.map(e=>`
     <div class="d-entry">
@@ -2333,10 +2339,12 @@ function renderDiary(){
 // ===== PHOTO BOOK =====
 let currentPhotos=[];
 let pbCache=[];
+let pbLoaded=false;
 fbDb.ref('photobook_2026').on('value', snap=>{
   const val=snap.val()||{};
   pbCache=Object.keys(val).map(k=>({id:k,...val[k]}));
   pbCache.sort((a,b)=>a.date.localeCompare(b.date));
+  pbLoaded=true;
   renderPb();
 });
 function getPb(){return pbCache;}
@@ -2388,6 +2396,7 @@ async function deletePb(id){
 }
 function renderPb(){
   const entries=getPb();const el=document.getElementById('pb-entries');
+  if(!pbLoaded){el.innerHTML='<div class="empty"><div class="eico">⏳</div><div>Lade Einträge...</div></div>';return;}
   if(!entries.length){el.innerHTML='<div class="empty"><div class="eico">📷</div><div>Noch keine Fotoeinträge. Erstelle dein erstes Kapitel!</div></div>';return;}
   el.innerHTML=entries.map(e=>`
     <div class="pb-entry">
