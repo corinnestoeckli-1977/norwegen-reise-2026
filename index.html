@@ -2290,13 +2290,20 @@ async function saveDiary(){
   const text=document.getElementById('d-text').value.trim();
   if(!date||!title||!text){showToast('Bitte Datum, Titel und Text ausfüllen!');return;}
   if(!await checkWritePw())return;
+  const saveBtn=document.querySelector('#diary-form-box .btn-p');
+  if(saveBtn){saveBtn.disabled=true;saveBtn.innerHTML='<i class="fa fa-spinner fa-spin"></i> Speichern...';}
   const editId=document.getElementById('diary-edit-id').value;
   const data={date,loc,title,text,mood:currentMood};
   const ref=editId?fbDb.ref('diary_2026/'+editId):fbDb.ref('diary_2026').push();
   ref.set(data).then(()=>{
     clearDiaryForm();
     showToast('✅ Eintrag gespeichert!');
-  }).catch(err=>showToast('⚠️ Fehler: '+err.message));
+  }).catch(err=>{
+    showToast('⚠️ Fehler: '+err.message);
+    alert('⚠️ Speichern fehlgeschlagen: '+err.message);
+  }).finally(()=>{
+    if(saveBtn){saveBtn.disabled=false;saveBtn.innerHTML='<i class="fa fa-save"></i> Speichern';}
+  });
 }
 
 function clearDiaryForm(){
