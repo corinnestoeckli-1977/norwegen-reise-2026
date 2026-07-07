@@ -2415,16 +2415,32 @@ fbDb.ref('photobook_2026').on('value', snap=>{
 });
 function getPb(){return pbCache;}
 
+function compressImage(dataUrl, maxWidth, quality){
+  return new Promise(resolve=>{
+    const img=new Image();
+    img.onload=()=>{
+      const canvas=document.createElement('canvas');
+      let w=img.width, h=img.height;
+      if(w>maxWidth){h=Math.round(h*maxWidth/w);w=maxWidth;}
+      canvas.width=w;canvas.height=h;
+      canvas.getContext('2d').drawImage(img,0,0,w,h);
+      resolve(canvas.toDataURL('image/jpeg',quality));
+    };
+    img.src=dataUrl;
+  });
+}
+
 function previewPhotos(input){
   const files=Array.from(input.files);
   currentPhotos=[];
   const pv=document.getElementById('pb-previews');pv.innerHTML='';
   files.forEach((f,i)=>{
     const reader=new FileReader();
-    reader.onload=ev=>{
-      currentPhotos.push({name:f.name,data:ev.target.result});
+    reader.onload=async ev=>{
+      const compressed=await compressImage(ev.target.result, 1200, 0.75);
+      currentPhotos.push({name:f.name,data:compressed});
       const d=document.createElement('div');d.className='prev';
-      d.innerHTML=`<img src="${ev.target.result}"><button class="rm" onclick="removePreview(${i})">&times;</button>`;
+      d.innerHTML=`<img src="${compressed}"><button class="rm" onclick="removePreview(${i})">&times;</button>`;
       pv.appendChild(d);
     };
     reader.readAsDataURL(f);
@@ -2439,12 +2455,19 @@ async function savePbEntry(){
   const text=document.getElementById('pb-text').value.trim();
   if(!date||!title){showToast('Bitte Datum und Titel ausfüllen!');return;}
   if(!await checkWritePw())return;
+  const saveBtn=document.querySelector('#pb-form-box .btn-p');
+  if(saveBtn){saveBtn.disabled=true;saveBtn.innerHTML='<i class="fa fa-spinner fa-spin"></i> Speichern...';}
   const editId=document.getElementById('pb-edit-id').value;
   const entry={date,loc,title,text,photos:currentPhotos.map(p=>({name:p.name,data:p.data}))};
   const ref=editId?fbDb.ref('photobook_2026/'+editId):fbDb.ref('photobook_2026').push();
   ref.set(entry).then(()=>{
     clearPbForm();showToast('📷 Fotobuch-Eintrag gespeichert!');
-  }).catch(err=>showToast('⚠️ Fehler: '+err.message+' (evtl. zu grosse Fotos)'));
+  }).catch(err=>{
+    showToast('⚠️ Fehler: '+err.message+' (evtl. zu grosse Fotos)');
+    alert('⚠️ Speichern fehlgeschlagen: '+err.message);
+  }).finally(()=>{
+    if(saveBtn){saveBtn.disabled=false;saveBtn.innerHTML='<i class="fa fa-save"></i> Speichern';}
+  });
 }
 function clearPbForm(){
   document.getElementById('pb-date').value='';document.getElementById('pb-location').value='';
