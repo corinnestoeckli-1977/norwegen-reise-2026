@@ -2434,16 +2434,26 @@ function previewPhotos(input){
   const files=Array.from(input.files);
   currentPhotos=[];
   const pv=document.getElementById('pb-previews');pv.innerHTML='';
-  files.forEach((f,i)=>{
+  const saveBtn=document.querySelector('#pb-form-box .btn-p');
+  if(saveBtn){saveBtn.disabled=true;saveBtn.innerHTML='<i class="fa fa-spinner fa-spin"></i> Fotos werden geladen...';}
+  const promises=files.map((f,i)=>new Promise(resolve=>{
     const reader=new FileReader();
     reader.onload=async ev=>{
       const compressed=await compressImage(ev.target.result, 1200, 0.75);
-      currentPhotos.push({name:f.name,data:compressed});
-      const d=document.createElement('div');d.className='prev';
-      d.innerHTML=`<img src="${compressed}"><button class="rm" onclick="removePreview(${i})">&times;</button>`;
-      pv.appendChild(d);
+      resolve({name:f.name, data:compressed, idx:i});
     };
     reader.readAsDataURL(f);
+  }));
+  Promise.all(promises).then(results=>{
+    currentPhotos=results.sort((a,b)=>a.idx-b.idx).map(r=>({name:r.name,data:r.data}));
+    pv.innerHTML='';
+    currentPhotos.forEach((p,i)=>{
+      const d=document.createElement('div');d.className='prev';
+      d.innerHTML=`<img src="${p.data}"><button class="rm" onclick="removePreview(${i})">&times;</button>`;
+      pv.appendChild(d);
+    });
+    if(saveBtn){saveBtn.disabled=false;saveBtn.innerHTML='<i class="fa fa-save"></i> Speichern';}
+    showToast(`✅ ${currentPhotos.length} Foto(s) bereit`);
   });
 }
 function removePreview(i){currentPhotos.splice(i,1);const pv=document.getElementById('pb-previews');if(pv.children[i])pv.removeChild(pv.children[i]);}
