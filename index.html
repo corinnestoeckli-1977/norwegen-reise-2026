@@ -2064,6 +2064,7 @@ nav a:hover{color:#fff;border-bottom-color:var(--nr);background:rgba(255,255,255
     <div class="ch-ico" style="background:#F39C12"><i class="fa fa-camera"></i></div>
     <div style="flex:1"><div class="ch-title">Fotobuch</div><div class="ch-sub">Deine Reisefotos mit Text festhalten · Fotos von deinem Gerät</div></div>
     <button class="btn btn-s" onclick="backupPb()" style="flex-shrink:0"><i class="fa fa-download"></i> Backup</button>
+    <button class="btn btn-s" onclick="recompressAllPhotos()" style="flex-shrink:0;font-size:12px"><i class="fa fa-compress"></i> Neu komprimieren</button>
   </div>
 
   <div class="form-box" id="pb-form-box">
@@ -2446,7 +2447,7 @@ function previewPhotos(input){
   const promises=files.map((f,i)=>new Promise(resolve=>{
     const reader=new FileReader();
     reader.onload=async ev=>{
-      const compressed=await compressImage(ev.target.result, 1200, 0.75);
+      const compressed=await compressImage(ev.target.result, 800, 0.55);
       resolve({name:f.name, data:compressed, idx:i});
     };
     reader.readAsDataURL(f);
@@ -2537,6 +2538,31 @@ function renderPbTrash(){
         <button class="btn btn-s" style="font-size:12px;padding:5px 10px" onclick="restorePb('${e.id}')"><i class="fa fa-rotate-left"></i> Wiederherstellen</button>
       </div>
     </div>`).join('');
+}
+
+async function recompressAllPhotos(){
+  if(!confirm('Alle bestehenden Fotos neu komprimieren? Das kann einige Minuten dauern.'))return;
+  if(!await checkWritePw())return;
+  const entries=pbCache.filter(e=>e.photos&&e.photos.length);
+  if(!entries.length){showToast('Keine Fotos gefunden.');return;}
+  let done=0;
+  showToast(`⏳ Starte Komprimierung (0/${entries.length} Einträge)...`);
+  for(const entry of entries){
+    const newPhotos=[];
+    for(const p of entry.photos){
+      try{
+        const compressed=await compressImage(p.data, 800, 0.55);
+        newPhotos.push({name:p.name, data:compressed});
+      }catch(e){
+        newPhotos.push(p);
+      }
+    }
+    await fbDb.ref('photobook_2026/'+entry.id).update({photos:newPhotos});
+    done++;
+    showToast(`⏳ ${done}/${entries.length} Einträge komprimiert...`);
+  }
+  alert(`✅ Fertig! Alle ${entries.length} Einträge wurden neu komprimiert. Die Seite wird jetzt neu geladen.`);
+  location.reload();
 }
 
 function backupPb(){
