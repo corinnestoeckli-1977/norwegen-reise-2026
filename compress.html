@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Foto-Komprimierung</title>
+<style>
+  body{font-family:sans-serif;max-width:600px;margin:40px auto;padding:20px;background:#f0f4ff}
+  h2{color:#003F87}
+  .log{background:#fff;border-radius:12px;padding:16px;height:300px;overflow-y:auto;font-size:13px;font-family:monospace;border:1px solid #ddd}
+  .log div{padding:2px 0;border-bottom:1px solid #f0f0f0}
+  .log .ok{color:#27AE60}
+  .log .err{color:#E74C3C}
+  .log .info{color:#2471A3}
+  button{background:#003F87;color:#fff;border:none;padding:14px 28px;border-radius:10px;font-size:16px;font-weight:700;cursor:pointer;margin-top:16px;width:100%}
+  button:disabled{background:#aaa;cursor:not-allowed}
+  .progress{background:#e0e7ff;border-radius:8px;height:20px;margin-top:12px;overflow:hidden}
+  .progress-bar{background:#003F87;height:100%;transition:width .3s;border-radius:8px}
+  .summary{background:#d4edda;border:1px solid #27AE60;border-radius:10px;padding:14px;margin-top:16px;display:none}
+</style>
+</head>
+<body>
+<h2>🗜️ Foto-Komprimierung</h2>
+<p>Dieses Tool komprimiert alle Fotos im Fotobuch <strong>Eintrag für Eintrag</strong> auf max. 600px / 40% Qualität. Die Gesamtgrösse wird von ~61MB auf ca. 5-8MB reduziert.</p>
+<p><strong>Passwort:</strong> Norwegen2026 wird benötigt.</p>
+
+<button id="startBtn" onclick="startCompression()">▶ Komprimierung starten</button>
+<div class="progress" style="margin-top:12px"><div class="progress-bar" id="prog" style="width:0%"></div></div>
+<p id="status" style="text-align:center;font-weight:600;color:#003F87">Bereit</p>
+<div class="log" id="log"></div>
+<div class="summary" id="summary"></div>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyAHXMr8_XeTClzDn3B4P2TpyqpJOHwrYTs",
+  authDomain: "norwegen-reise-2026.firebaseapp.com",
+  databaseURL: "https://norwegen-reise-2026-default-rtdb.firebaseio.com",
+  projectId: "norwegen-reise-2026",
+  storageBucket: "norwegen-reise-2026.appspot.com",
+  messagingSenderId: "123456789",
+  appId: "1:123456789:web:abc"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+const WRITE_PW = 'Norwegen2026';
+const MAX_WIDTH = 600;
+const QUALITY = 0.40;
+
+function log(msg, type='info'){
+  const d=document.getElementById('log');
+  const div=document.createElement('div');
+  div.className=type;
+  div.textContent=new Date().toLocaleTimeString()+' — '+msg;
+  d.appendChild(div);
+  d.scrollTop=d.scrollHeight;
+}
+
+function compressImage(dataUrl){
+  return new Promise(resolve=>{
+    const img=new Image();
+    img.onload=()=>{
+      const canvas=document.createElement('canvas');
+      let w=img.width,h=img.height;
+      if(w>MAX_WIDTH){h=Math.round(h*MAX_WIDTH/w);w=MAX_WIDTH;}
+      canvas.width=w;canvas.height=h;
+      canvas.getContext('2d').drawImage(img,0,0,w,h);
+      resolve(canvas.toDataURL('image/jpeg',QUALITY));
+    };
+    img.onerror=()=>resolve(dataUrl);
+    img.src=dataUrl;
+  });
+}
+
+function sizeKB(str){return Math.round(str.length*0.75/1024);}
+
+async function startCompression(){
+  const pw=prompt('Bitte Passwort eingeben:');
+  if(pw!==WRITE_PW){alert('Falsches Passwort!');return;}
+
+  const btn=document.getElementById('startBtn');
+  btn.disabled=true;
+  document.getElementById('log').innerHTML='';
+  document.getElementById('summary').style.display='none';
+
+  log('Lade Eintragsliste (nur IDs)...','info');
+  let keys;
+  try{
+    const snap=await db.ref('photobook_2026').once('value',undefined,undefined);
+    // shallow not available in compat, load full but only get keys
+    const val=snap.val()||{};
+    keys=Object.keys(val);
+    log(`${keys.length} Einträge gefunden.`,'ok');
+  }catch(e){
+    log('Fehler beim Laden: '+e.message,'err');
+    btn.disabled=false;
+    return;
+  }
+
+  let totalBefore=0, totalAfter=0, skipped=0;
+
+  for(let i=0;i<keys.length;i++){
+    const id=keys[i];
+    const pct=Math.round((i/keys.length)*100);
+    document.getElementById('prog').style.width=pct+'%';
+    document.getElementById('status').textContent=`Eintrag ${i+1} von ${keys.length}...`;
+
+    try{
+      const snap=await db.ref('photobook_2026/'+id).once('value');
+      const entry=snap.val();
+      if(!entry||!entry.photos||!entry.photos.length){
+        log(`[${i+1}] "${entry?.title||id}" — keine Fotos, übersprungen`,'info');
+        skipped++;
+        continue;
+      }
+
+      const before=entry.photos.reduce((s,p)=>s+sizeKB(p.data||''),0);
+      totalBefore+=before;
+      log(`[${i+1}] "${entry.title}" — ${entry.photos.length} Foto(s), ${before} KB — komprimiere...`,'info');
+
+      const newPhotos=[];
+      for(const p of entry.photos){
+        const compressed=await compressImage(p.data);
+        newPhotos.push({name:p.name, data:compressed});
+      }
+
+      const after=newPhotos.reduce((s,p)=>s+sizeKB(p.data||''),0);
+      totalAfter+=after;
+      await db.ref('photobook_2026/'+id).update({photos:newPhotos});
+      log(`[${i+1}] ✓ gespeichert — ${before} KB → ${after} KB (${Math.round((1-after/before)*100)}% kleiner)`,'ok');
+    }catch(e){
+      log(`[${i+1}] Fehler: `+e.message,'err');
+    }
+  }
+
+  document.getElementById('prog').style.width='100%';
+  document.getElementById('status').textContent='Fertig!';
+  const sum=document.getElementById('summary');
+  sum.style.display='block';
+  sum.innerHTML=`<strong>✅ Komprimierung abgeschlossen!</strong><br>
+    Vorher: <strong>${Math.round(totalBefore/1024)} MB</strong><br>
+    Nachher: <strong>${Math.round(totalAfter/1024)} MB</strong><br>
+    Ersparnis: <strong>${Math.round((1-totalAfter/totalBefore)*100)}%</strong><br>
+    Übersprungen (keine Fotos): ${skipped}`;
+  log('Komprimierung abgeschlossen!','ok');
+  btn.disabled=false;
+}
+</script>
+</body>
+</html>
