@@ -2552,15 +2552,32 @@ function renderPb(){
   const entries=getPb();const el=document.getElementById('pb-entries');
   if(!pbLoaded){el.innerHTML='<div class="empty"><div class="eico">⏳</div><div>Lade Einträge...</div></div>';return;}
   if(!entries.length){el.innerHTML='<div class="empty"><div class="eico">📷</div><div>Noch keine Fotoeinträge. Erstelle dein erstes Kapitel!</div></div>';return;}
-  el.innerHTML=entries.map(e=>`
-    <div class="pb-entry">
+  el.innerHTML=entries.map(e=>{
+    const photoCount=e.photos&&e.photos.length?e.photos.length:0;
+    return`<div class="pb-entry">
       <div class="pb-hd">
         <div><div style="font-family:Playfair Display,serif;font-size:20px;font-weight:700">${e.title}</div><div style="font-size:12px;opacity:.8;margin-top:2px">${fmtDate(e.date)}${e.loc?' · '+e.loc:''}</div></div>
         <button class="btn btn-d" style="padding:6px 12px;font-size:12px" onclick="deletePb('${e.id}')"><i class="fa fa-trash"></i></button>
       </div>
-      ${e.photos&&e.photos.length?`<div class="pb-photos">${e.photos.map(p=>`<img src="${p.data}" alt="${p.name}" onclick="openLightbox('${p.data}')">`).join('')}</div>`:''}
+      ${photoCount?`<div style="padding:10px 18px"><button class="btn btn-s" style="font-size:12px" onclick="pbShowPhotos('${e.id}',this)">📷 ${photoCount} Foto(s) anzeigen</button><div id="pb-photos-${e.id}" style="display:none" class="pb-photos"></div></div>`:''}
       ${e.text?`<div class="pb-text">${escHtml(e.text)}</div>`:''}
-    </div>`).join('');
+    </div>`;
+  }).join('');
+}
+
+function pbShowPhotos(id, btn){
+  const entry=pbCache.find(e=>e.id===id);
+  if(!entry)return;
+  const container=document.getElementById('pb-photos-'+id);
+  if(container.style.display==='none'){
+    container.innerHTML=entry.photos.map(p=>`<img src="${p.data}" alt="${p.name}" onclick="openLightbox('${p.data}')">`).join('');
+    container.style.display='grid';
+    btn.textContent='▲ Fotos ausblenden';
+  } else {
+    container.style.display='none';
+    container.innerHTML='';
+    btn.innerHTML=`📷 ${entry.photos.length} Foto(s) anzeigen`;
+  }
 }
 
 // ===== LIGHTBOX =====
