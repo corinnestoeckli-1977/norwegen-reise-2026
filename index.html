@@ -2421,6 +2421,10 @@ fbDb.ref('photobook_2026').on('value', snap=>{
   pbCache.sort((a,b)=>a.date.localeCompare(b.date));
   pbLoaded=true;
   renderPb();
+}, err=>{
+  pbLoaded=true;
+  const el=document.getElementById('pb-entries');
+  if(el) el.innerHTML=`<div class="empty"><div class="eico">⚠️</div><div>Fehler beim Laden: ${err.message}</div></div>`;
 });
 function getPb(){return pbCache;}
 
