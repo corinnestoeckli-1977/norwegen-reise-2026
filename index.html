@@ -2274,11 +2274,16 @@ setMood('😊');
 
 let diaryCache=[];
 let diaryLoaded=false;
+try{
+  const cached=sessionStorage.getItem('diaryCache');
+  if(cached){ diaryCache=JSON.parse(cached); diaryLoaded=true; }
+}catch(e){}
 fbDb.ref('diary_2026').on('value', snap=>{
   const val=snap.val()||{};
   diaryCache=Object.keys(val).map(k=>({id:k,...val[k]}));
   diaryCache.sort((a,b)=>a.date.localeCompare(b.date));
   diaryLoaded=true;
+  try{ sessionStorage.setItem('diaryCache', JSON.stringify(diaryCache)); }catch(e){}
   renderDiary();
 });
 function getDiary(){return diaryCache;}
@@ -2414,16 +2419,22 @@ function renderDiary(){
 let currentPhotos=[];
 let pbCache=[];
 let pbLoaded=false;
+// Sofort aus SessionStorage laden (blitzschnell)
+try{
+  const cached=sessionStorage.getItem('pbCache');
+  if(cached){ pbCache=JSON.parse(cached); pbLoaded=true; }
+}catch(e){}
 fbDb.ref('photobook_2026').on('value', snap=>{
   const val=snap.val()||{};
   pbCache=Object.keys(val).map(k=>({id:k,...val[k]}));
   pbCache.sort((a,b)=>a.date.localeCompare(b.date));
   pbLoaded=true;
+  try{ sessionStorage.setItem('pbCache', JSON.stringify(pbCache.map(e=>({...e,photos:(e.photos||[]).map(p=>({name:p.name,data:''}))}))));  }catch(e){}
   try{ renderPb(); }catch(err){ const el=document.getElementById('pb-entries'); if(el) el.innerHTML='<div style="color:red;padding:16px">Fehler: '+err.message+'</div>'; }
 }, err=>{
-  pbLoaded=true;
+  if(!pbLoaded){ pbLoaded=true; }
   const el=document.getElementById('pb-entries');
-  if(el) el.innerHTML=`<div class="empty"><div class="eico">⚠️</div><div>Fehler beim Laden: ${err.message}</div></div>`;
+  if(el&&!pbCache.length) el.innerHTML=`<div class="empty"><div class="eico">⚠️</div><div>Fehler beim Laden: ${err.message}</div></div>`;
 });
 function getPb(){return pbCache;}
 
@@ -2609,9 +2620,22 @@ function pbShowPhotos(id, btn){
   if(!entry)return;
   const container=document.getElementById('pb-photos-'+id);
   if(container.style.display==='none'){
-    container.innerHTML=entry.photos.map(p=>`<img src="${p.data}" alt="${p.name}" onclick="openLightbox('${p.data}')">`).join('');
-    container.style.display='grid';
-    btn.textContent='▲ Fotos ausblenden';
+    // Falls Foto-Daten fehlen (nur aus Cache), direkt von Firebase laden
+    const hasData=entry.photos&&entry.photos.length&&entry.photos[0].data;
+    if(!hasData){
+      btn.textContent='⏳ Lade Fotos...';
+      fbDb.ref('photobook_2026/'+id+'/photos').once('value').then(snap=>{
+        const photos=snap.val()||[];
+        entry.photos=photos;
+        container.innerHTML=photos.map(p=>`<img src="${p.data}" alt="${p.name}" onclick="openLightbox('${p.data}')">`).join('');
+        container.style.display='grid';
+        btn.textContent='▲ Fotos ausblenden';
+      });
+    } else {
+      container.innerHTML=entry.photos.map(p=>`<img src="${p.data}" alt="${p.name}" onclick="openLightbox('${p.data}')">`).join('');
+      container.style.display='grid';
+      btn.textContent='▲ Fotos ausblenden';
+    }
   } else {
     container.style.display='none';
     container.innerHTML='';
