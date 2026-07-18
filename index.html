@@ -2559,7 +2559,7 @@ function renderPb(){
         <div><div style="font-family:Playfair Display,serif;font-size:20px;font-weight:700">${e.title}</div><div style="font-size:12px;opacity:.8;margin-top:2px">${fmtDate(e.date)}${e.loc?' · '+e.loc:''}</div></div>
         <button class="btn btn-d" style="padding:6px 12px;font-size:12px" onclick="deletePb('${e.id}')"><i class="fa fa-trash"></i></button>
       </div>
-      ${photoCount?`<div style="padding:10px 18px"><button class="btn btn-s" style="font-size:12px" onclick="pbShowPhotos('${e.id}',this)">📷 ${photoCount} Foto(s) anzeigen</button><div id="pb-photos-${e.id}" style="display:none" class="pb-photos"></div></div>`:''}
+      ${photoCount?`<div style="padding:12px 18px"><button onclick="pbShowPhotos('${e.id}',this)" style="width:100%;padding:12px;background:linear-gradient(135deg,var(--nb),#0D6EFD);color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;box-shadow:0 4px 12px rgba(0,63,135,.3)">📷 <span>${photoCount} Foto(s) anzeigen</span></button><div id="pb-photos-${e.id}" style="display:none" class="pb-photos"></div></div>`:''}
       ${e.text?`<div class="pb-text">${escHtml(e.text)}</div>`:''}
     </div>`;
   }).join('');
