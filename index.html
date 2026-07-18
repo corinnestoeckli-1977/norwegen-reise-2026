@@ -2064,7 +2064,6 @@ nav a:hover{color:#fff;border-bottom-color:var(--nr);background:rgba(255,255,255
     <div class="ch-ico" style="background:#F39C12"><i class="fa fa-camera"></i></div>
     <div style="flex:1"><div class="ch-title">Fotobuch</div><div class="ch-sub">Deine Reisefotos mit Text festhalten · Fotos von deinem Gerät</div></div>
     <button class="btn btn-s" onclick="backupPb()" style="flex-shrink:0"><i class="fa fa-download"></i> Backup</button>
-    <button class="btn btn-s" onclick="recompressAllPhotos()" style="flex-shrink:0;font-size:12px"><i class="fa fa-compress"></i> Neu komprimieren</button>
   </div>
 
   <div class="form-box" id="pb-form-box">
@@ -2420,7 +2419,7 @@ fbDb.ref('photobook_2026').on('value', snap=>{
   pbCache=Object.keys(val).map(k=>({id:k,...val[k]}));
   pbCache.sort((a,b)=>a.date.localeCompare(b.date));
   pbLoaded=true;
-  renderPb();
+  try{ renderPb(); }catch(err){ const el=document.getElementById('pb-entries'); if(el) el.innerHTML='<div style="color:red;padding:16px">Fehler: '+err.message+'</div>'; }
 }, err=>{
   pbLoaded=true;
   const el=document.getElementById('pb-entries');
@@ -2589,20 +2588,18 @@ function renderPb(){
   if(!el)return;
   if(!pbLoaded){el.innerHTML='<div class="empty"><div class="eico">⏳</div><div>Lade Einträge...</div></div>';return;}
   if(!entries.length){el.innerHTML='<div class="empty"><div class="eico">📷</div><div>Noch keine Fotoeinträge. Erstelle dein erstes Kapitel!</div></div>';return;}
-  el.innerHTML=entries.map((e,idx)=>{
+  el.innerHTML=entries.map(e=>{
     const photoCount=e.photos&&e.photos.length?e.photos.length:0;
-    const colors=['#003F87','#E74C3C','#27AE60','#8E44AD','#E67E22','#2471A3','#1ABC9C'];
-    const accent=colors[idx%colors.length];
-    return`<div class="pb-entry" style="margin-bottom:28px;border-radius:16px;box-shadow:0 6px 24px rgba(0,0,0,.12);overflow:hidden;border:none">
-      <div class="pb-hd" style="background:linear-gradient(135deg,${accent},${accent}cc);padding:18px 22px">
-        <div>
-          <div style="font-family:Playfair Display,serif;font-size:22px;font-weight:700">${e.title}</div>
-          <div style="font-size:12px;opacity:.85;margin-top:4px">📅 ${fmtDate(e.date)}${e.loc?' · 📍'+e.loc:''}</div>
-        </div>
-        <button class="btn btn-d" style="padding:6px 12px;font-size:12px;background:rgba(255,255,255,.2);color:#fff;border:1px solid rgba(255,255,255,.4)" onclick="deletePb('${e.id}')"><i class="fa fa-trash"></i></button>
+    return`<div class="d-entry">
+      <div class="d-entry-hd">
+        <div><div class="d-title">📷 ${e.title}</div><div class="d-meta">${fmtDate(e.date)}${e.loc?' · '+e.loc:''}</div></div>
+        <button class="btn btn-d" onclick="deletePb('${e.id}')"><i class="fa fa-trash"></i> Löschen</button>
       </div>
-      ${e.text?`<div class="pb-text" style="padding:16px 22px;font-size:14px;color:var(--tm);line-height:1.7;border-bottom:1px solid var(--bd)">${escHtml(e.text)}</div>`:''}
-      ${photoCount?`<div style="padding:14px 18px;background:#f8faff"><button onclick="pbShowPhotos('${e.id}',this)" style="width:100%;padding:13px;background:linear-gradient(135deg,${accent},${accent}bb);color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;box-shadow:0 4px 12px rgba(0,0,0,.2)">📷 <span>${photoCount} Foto(s) anzeigen</span></button><div id="pb-photos-${e.id}" style="display:none;margin-top:12px" class="pb-photos"></div></div>`:''}
+      ${e.text?`<div class="d-text">${escHtml(e.text)}</div>`:''}
+      <div class="d-actions">
+        ${photoCount?`<button onclick="pbShowPhotos('${e.id}',this)" style="background:#003F87;color:#fff;border:none;border-radius:8px;padding:10px 18px;font-size:14px;font-weight:700;cursor:pointer">📷 ${photoCount} Foto(s) anzeigen</button>`:''}
+      </div>
+      <div id="pb-photos-${e.id}" style="display:none;margin-top:12px" class="pb-photos"></div>
     </div>`;
   }).join('');
 }
