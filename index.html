@@ -2395,6 +2395,7 @@ function backupDiary(){
 }
 function renderDiary(){
   const entries=getDiary();const el=document.getElementById('diary-entries');
+  if(!el)return;
   if(!diaryLoaded){el.innerHTML='<div class="empty"><div class="eico">⏳</div><div>Lade Einträge...</div></div>';return;}
   if(!entries.length){el.innerHTML='<div class="empty"><div class="eico">📖</div><div>Noch keine Einträge. Beginne dein Tagebuch!</div></div>';return;}
   el.innerHTML=entries.map(e=>`
@@ -2581,6 +2582,7 @@ function backupPb(){
 }
 function renderPb(){
   const entries=getPb();const el=document.getElementById('pb-entries');
+  if(!el)return;
   if(!pbLoaded){el.innerHTML='<div class="empty"><div class="eico">⏳</div><div>Lade Einträge...</div></div>';return;}
   if(!entries.length){el.innerHTML='<div class="empty"><div class="eico">📷</div><div>Noch keine Fotoeinträge. Erstelle dein erstes Kapitel!</div></div>';return;}
   el.innerHTML=entries.map((e,idx)=>{
