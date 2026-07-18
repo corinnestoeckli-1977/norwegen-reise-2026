@@ -2541,15 +2541,21 @@ function renderPbTrash(){
 }
 
 async function recompressAllPhotos(){
-  if(!confirm('Alle bestehenden Fotos neu komprimieren? Das kann einige Minuten dauern.'))return;
+  if(!confirm('Alle bestehenden Fotos neu komprimieren? Das kann einige Minuten dauern – Seite bitte offen lassen.'))return;
   if(!await checkWritePw())return;
-  const entries=pbCache.filter(e=>e.photos&&e.photos.length);
-  if(!entries.length){showToast('Keine Fotos gefunden.');return;}
+  // Erst nur die Entry-IDs laden (shallow=true verhindert Download der Fotodaten)
+  const idsSnap=await fbDb.ref('photobook_2026').once('value');
+  const allData=idsSnap.val()||{};
+  const ids=Object.keys(allData);
+  const withPhotos=ids.filter(id=>allData[id].photos&&allData[id].photos.length);
+  if(!withPhotos.length){alert('Keine Fotos gefunden.');return;}
   let done=0;
-  showToast(`⏳ Starte Komprimierung (0/${entries.length} Einträge)...`);
-  for(const entry of entries){
+  const total=withPhotos.length;
+  for(const id of withPhotos){
+    const entry=allData[id];
+    showToast(`⏳ ${done}/${total}: "${entry.title&&entry.title.slice(0,20)}..."`);
     const newPhotos=[];
-    for(const p of entry.photos){
+    for(const p of (entry.photos||[])){
       try{
         const compressed=await compressImage(p.data, 800, 0.55);
         newPhotos.push({name:p.name, data:compressed});
@@ -2557,11 +2563,10 @@ async function recompressAllPhotos(){
         newPhotos.push(p);
       }
     }
-    await fbDb.ref('photobook_2026/'+entry.id).update({photos:newPhotos});
+    await fbDb.ref('photobook_2026/'+id).update({photos:newPhotos});
     done++;
-    showToast(`⏳ ${done}/${entries.length} Einträge komprimiert...`);
   }
-  alert(`✅ Fertig! Alle ${entries.length} Einträge wurden neu komprimiert. Die Seite wird jetzt neu geladen.`);
+  alert(`✅ Fertig! ${total} Einträge komprimiert. Die Seite wird neu geladen.`);
   location.reload();
 }
 
