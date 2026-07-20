@@ -2278,6 +2278,7 @@ try{
   const cached=sessionStorage.getItem('diaryCache');
   if(cached){ diaryCache=JSON.parse(cached); diaryLoaded=true; }
 }catch(e){}
+if(diaryLoaded) document.addEventListener('DOMContentLoaded',()=>renderDiary());
 fbDb.ref('diary_2026').on('value', snap=>{
   const val=snap.val()||{};
   diaryCache=Object.keys(val).map(k=>({id:k,...val[k]}));
@@ -2424,6 +2425,8 @@ try{
   const cached=sessionStorage.getItem('pbCache');
   if(cached){ pbCache=JSON.parse(cached); pbLoaded=true; }
 }catch(e){}
+// Einträge sofort anzeigen falls Cache vorhanden
+if(pbLoaded) document.addEventListener('DOMContentLoaded',()=>renderPb());
 fbDb.ref('photobook_2026').on('value', snap=>{
   const val=snap.val()||{};
   pbCache=Object.keys(val).map(k=>({id:k,...val[k]}));
