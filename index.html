@@ -2089,12 +2089,12 @@ nav a:hover{color:#fff;border-bottom-color:var(--nr);background:rgba(255,255,255
     <div class="fgrp" style="margin-bottom:14px"><label>Titel</label><input type="text" id="pb-title" placeholder="z.B. Sonnenuntergang am Trollfjord..."></div>
     <div class="fgrp" style="margin-bottom:14px">
       <label>Fotos hinzufügen</label>
-      <div class="upload-area" onclick="document.getElementById('pb-files').click()">
-        <input type="file" id="pb-files" multiple accept="image/*" onchange="previewPhotos(this)">
+      <label for="pb-files" class="upload-area" style="cursor:pointer;display:block">
+        <input type="file" id="pb-files" multiple accept="image/*" onchange="previewPhotos(this)" style="position:absolute;opacity:0;width:0;height:0">
         <div style="font-size:36px;margin-bottom:8px">📷</div>
         <div style="font-weight:600;color:var(--nb)">Fotos auswählen</div>
-        <div style="font-size:12px;color:var(--tl);margin-top:4px">Klicken oder Bilder hierher ziehen · JPG, PNG, HEIC</div>
-      </div>
+        <div style="font-size:12px;color:var(--tl);margin-top:4px">Tippen zum Auswählen · JPG, PNG, HEIC</div>
+      </label>
       <div class="previews" id="pb-previews"></div>
     </div>
     <div class="fgrp" style="margin-bottom:20px"><label>Erinnerungen &amp; Gedanken</label><textarea id="pb-text" placeholder="Was war besonders? Was hast du gefühlt? Wen hast du getroffen?"></textarea></div>
@@ -2465,7 +2465,7 @@ function previewPhotos(input){
   const promises=files.map((f,i)=>new Promise(resolve=>{
     const reader=new FileReader();
     reader.onload=async ev=>{
-      const compressed=await compressImage(ev.target.result, 800, 0.55);
+      const compressed=await compressImage(ev.target.result, 600, 0.40);
       resolve({name:f.name, data:compressed, idx:i});
     };
     reader.readAsDataURL(f);
@@ -2575,7 +2575,7 @@ async function recompressAllPhotos(){
     const newPhotos=[];
     for(const p of (entry.photos||[])){
       try{
-        const compressed=await compressImage(p.data, 800, 0.55);
+        const compressed=await compressImage(p.data, 600, 0.40);
         newPhotos.push({name:p.name, data:compressed});
       }catch(e){
         newPhotos.push(p);
