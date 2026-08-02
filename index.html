@@ -139,6 +139,8 @@ nav a:hover{color:#fff;border-bottom-color:var(--nr);background:rgba(255,255,255
 .prev img{width:100%;height:100%;object-fit:cover}
 .prev .rm{position:absolute;top:3px;right:3px;width:18px;height:18px;background:rgba(0,0,0,.65);color:#fff;border:none;border-radius:50%;font-size:10px;cursor:pointer;display:flex;align-items:center;justify-content:center}
 .pb-entries{display:flex;flex-direction:column;gap:28px}
+.rt-label{background:rgba(255,255,255,.95)!important;border:1px solid #003F87!important;border-radius:8px!important;padding:4px 8px!important;font-size:12px!important;line-height:1.4!important;box-shadow:0 2px 8px rgba(0,0,0,.15)!important;color:#1a202c!important;white-space:nowrap!important;}
+.rt-label::before{display:none!important}
 .pb-entry{background:#fff;border-radius:var(--r);box-shadow:var(--sh);overflow:hidden}
 .pb-hd{padding:18px 22px;background:linear-gradient(135deg,var(--nb),var(--fb));color:#fff;display:flex;justify-content:space-between;align-items:center}
 .pb-photos{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr))}
@@ -218,6 +220,7 @@ nav a:hover{color:#fff;border-bottom-color:var(--nr);background:rgba(255,255,255
   <a href="#tagebuch"><i class="fa fa-book-open"></i> Tagebuch</a>
   <a href="#fotobuch"><i class="fa fa-camera"></i> Fotobuch</a>
   <a href="#trails"><i class="fa fa-person-hiking"></i> Trails</a>
+  <a href="#roadtrip"><i class="fa fa-car"></i> Mietwagen</a>
 </nav>
 
 <!-- ===== CHAPTER 1: KARTE ===== -->
@@ -2864,6 +2867,78 @@ function escHtml(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(
 function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('on');setTimeout(()=>t.classList.remove('on'),2800);}
 </script>
 
+<!-- ===== CHAPTER 10: MIETWAGENRUNDREISE ===== -->
+<section id="roadtrip" class="ch">
+<div class="ch-hd">
+  <div class="ch-ico" style="background:#27AE60"><i class="fa fa-car"></i></div>
+  <div style="flex:1"><div class="ch-title">Mietwagenrundreise Südnorwegen</div><div class="ch-sub">7.–15. August 2026 · Bergen → Rosendal → Sand → Jørpeland → Stavanger → Haugesund → Bergen</div></div>
+</div>
+
+<!-- KARTE -->
+<div id="rt-map" style="height:420px;border-radius:16px;box-shadow:0 4px 20px rgba(0,0,0,.12);margin-bottom:28px"></div>
+
+<!-- ETAPPEN -->
+<div style="margin-bottom:28px">
+  <h3 style="font-family:'Playfair Display',serif;color:var(--nb);margin-bottom:16px">📍 Etappen & Hotels</h3>
+  <div style="overflow-x:auto">
+  <table style="width:100%;border-collapse:collapse;font-size:14px">
+    <thead><tr style="background:#003F87;color:#fff">
+      <th style="padding:10px 14px;text-align:left">Datum</th>
+      <th style="padding:10px 14px;text-align:left">Von → Nach</th>
+      <th style="padding:10px 14px;text-align:left">Hotel</th>
+      <th style="padding:10px 14px;text-align:left">Fahrt</th>
+    </tr></thead>
+    <tbody>
+      <tr style="background:#f0f4ff"><td style="padding:9px 14px;border-bottom:1px solid #e0e7ff"><b>7. Aug.</b></td><td style="padding:9px 14px;border-bottom:1px solid #e0e7ff">✈️ Flughafen Bergen → Rosendal</td><td style="padding:9px 14px;border-bottom:1px solid #e0e7ff">Rosendal Fjordhotel</td><td style="padding:9px 14px;border-bottom:1px solid #e0e7ff">~2 Std. · keine Fähre</td></tr>
+      <tr><td style="padding:9px 14px;border-bottom:1px solid #e0e7ff"><b>9. Aug.</b></td><td style="padding:9px 14px;border-bottom:1px solid #e0e7ff">Rosendal → Sand</td><td style="padding:9px 14px;border-bottom:1px solid #e0e7ff">Ryfylke Fjordhotell</td><td style="padding:9px 14px;border-bottom:1px solid #e0e7ff">~1.5 Std. · E134</td></tr>
+      <tr style="background:#f0f4ff"><td style="padding:9px 14px;border-bottom:1px solid #e0e7ff"><b>10. Aug.</b></td><td style="padding:9px 14px;border-bottom:1px solid #e0e7ff">Sand → Jørpeland</td><td style="padding:9px 14px;border-bottom:1px solid #e0e7ff">Preikestolen Mtn. Lodge</td><td style="padding:9px 14px;border-bottom:1px solid #e0e7ff">~1 Std. · fv520</td></tr>
+      <tr><td style="padding:9px 14px;border-bottom:1px solid #e0e7ff"><b>12. Aug.</b></td><td style="padding:9px 14px;border-bottom:1px solid #e0e7ff">Jørpeland → Stavanger</td><td style="padding:9px 14px;border-bottom:1px solid #e0e7ff">Comfort Hotel Square</td><td style="padding:9px 14px;border-bottom:1px solid #e0e7ff">~1 Std. · E39</td></tr>
+      <tr style="background:#f0f4ff"><td style="padding:9px 14px;border-bottom:1px solid #e0e7ff"><b>13. Aug.</b></td><td style="padding:9px 14px;border-bottom:1px solid #e0e7ff">Stavanger → Haugesund</td><td style="padding:9px 14px;border-bottom:1px solid #e0e7ff">Quality Hotel Maritim</td><td style="padding:9px 14px;border-bottom:1px solid #e0e7ff">⛴️ Mortavika→Arsvågen + E39 · ~2 Std.</td></tr>
+      <tr><td style="padding:9px 14px;border-bottom:1px solid #e0e7ff"><b>14. Aug.</b></td><td style="padding:9px 14px;border-bottom:1px solid #e0e7ff">Haugesund → Bergen</td><td style="padding:9px 14px;border-bottom:1px solid #e0e7ff">Comfort Hotel Airport</td><td style="padding:9px 14px;border-bottom:1px solid #e0e7ff">⛴️ Sandvikvåg→Halhjem + E39 · ~2.5 Std.</td></tr>
+    </tbody>
+  </table>
+  </div>
+</div>
+
+<!-- FÄHREN -->
+<div style="margin-bottom:28px">
+  <h3 style="font-family:'Playfair Display',serif;color:var(--nb);margin-bottom:16px">⛴️ Fähren im Detail</h3>
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px">
+
+    <div style="background:#fff;border-radius:12px;padding:18px;box-shadow:0 2px 12px rgba(0,0,0,.08);border-left:4px solid #E67E22">
+      <div style="font-weight:700;font-size:16px;margin-bottom:8px">⛴️ Mortavika → Arsvågen</div>
+      <div style="font-size:13px;color:var(--tl);margin-bottom:4px">📅 ca. 13. August · Stavanger → Haugesund</div>
+      <div style="font-size:13px;margin-bottom:4px">🚗 <b>NOK 178</b> pro Auto (inkl. Fahrer + Passagiere)</div>
+      <div style="font-size:13px;margin-bottom:4px">⏱️ Fahrtzeit: ~25 Min.</div>
+      <div style="font-size:13px;margin-bottom:4px">🔄 Frequenz: alle 20–30 Min.</div>
+      <div style="font-size:13px;color:#27AE60;font-weight:600">✅ Keine Voranmeldung nötig</div>
+    </div>
+
+    <div style="background:#fff;border-radius:12px;padding:18px;box-shadow:0 2px 12px rgba(0,0,0,.08);border-left:4px solid #003F87">
+      <div style="font-weight:700;font-size:16px;margin-bottom:8px">⛴️ Sandvikvåg → Halhjem</div>
+      <div style="font-size:13px;color:var(--tl);margin-bottom:4px">📅 14. August · Haugesund → Bergen</div>
+      <div style="font-size:13px;margin-bottom:4px">🚗 <b>NOK 176</b> pro Auto (inkl. Fahrer + Passagiere)</div>
+      <div style="font-size:13px;margin-bottom:4px">⏱️ Fahrtzeit: ~45 Min.</div>
+      <div style="font-size:13px;margin-bottom:4px">🔄 Frequenz: alle 20 Min. (sehr häufig)</div>
+      <div style="font-size:13px;color:#27AE60;font-weight:600">✅ Keine Voranmeldung nötig</div>
+    </div>
+
+  </div>
+</div>
+
+<!-- BEZAHLUNG -->
+<div style="background:#fff3cd;border:1px solid #f0c040;border-radius:12px;padding:18px;margin-bottom:28px">
+  <div style="font-weight:700;font-size:15px;margin-bottom:10px">💳 Fähre bezahlen — so funktioniert es</div>
+  <div style="font-size:14px;line-height:1.8">
+    <b>Option 1 — Direkt am Terminal:</b> Mit Kreditkarte zahlen. Einfach anfahren, kein Buchen nötig.<br>
+    <b>Option 2 — AutoPASS Ferje App:</b> Nummernschild registrieren → automatische Abbuchung. Günstiger (~50% Rabatt). Für Mietwagen: Mietwagen-Nummernschild eintragen.<br>
+    <b>⚠️ Mietauto:</b> AutoPASS muss mind. 1 Tag vorher registriert sein. Sonst einfach am Terminal mit Karte zahlen — problemlos!<br><br>
+    <a href="https://autopassferje.no/en/ferrypay-en/" target="_blank" style="color:#003F87;font-weight:700">→ autopassferje.no (FerryPay registrieren)</a>
+  </div>
+</div>
+
+</section>
+
 <!-- ===== CHAPTER 9: TRAILS ===== -->
 <style>
 /* Trails section – scoped to avoid conflicts */
@@ -3631,6 +3706,290 @@ const RAG = (() => {
   });
 
   return {toggle, saveKey, ask, send};
+})();
+
+// ===== MIETWAGENRUNDREISE KARTE =====
+(function(){
+  const stops = [
+    {name:'Bergen Flughafen (Start · 7. Aug.)', lat:60.2934, lng:5.2181, hotel:'Mietwagenabholung Flughafen', color:'#003F87', icon:'✈️'},
+    {name:'Rosendal (7.–9. Aug.)', lat:59.9872, lng:6.0138, hotel:'Rosendal Fjordhotel', color:'#27AE60', icon:'🏨'},
+    {name:'Sand / Ryfylke (9.–10. Aug.)', lat:59.4882, lng:6.2523, hotel:'Ryfylke Fjordhotell', color:'#27AE60', icon:'🏨'},
+    {name:'Jørpeland / Preikestolen (10.–12. Aug.)', lat:59.0231, lng:6.0674, hotel:'Preikestolen Mountain Lodge', color:'#27AE60', icon:'🏨'},
+    {name:'Stavanger (12.–13. Aug.)', lat:58.9700, lng:5.7331, hotel:'Comfort Hotel Square', color:'#27AE60', icon:'🏨'},
+    {name:'Haugesund (13.–14. Aug.)', lat:59.4138, lng:5.2680, hotel:'Quality Hotel Maritim', color:'#27AE60', icon:'🏨'},
+    {name:'Bergen Flughafen (Ziel · 14. Aug.)', lat:60.2934, lng:5.2181, hotel:'Comfort Hotel Airport · Rückgabe Mietwagen', color:'#E74C3C', icon:'🏁'},
+  ];
+
+  // Sightseeing Highlights mit Wiki, Detour und Zeitaufwand
+  const highlights = [
+    {lat:59.9867,lng:6.0147,icon:'🏰',name:'Baroniet Rosendal',
+     wiki:'Rosendal_Barony',
+     detour:'Direkt in Rosendal — kein Umweg nötig',
+     time:'⏱️ 1–2 Std. Besichtigung',
+     tip:'Geführte Tour durch Schloss & Rosengarten · Restaurant vor Ort'},
+    {lat:60.045,lng:6.372,icon:'🧊',name:'Folgefonna Gletscher',
+     wiki:'Folgefonna',
+     detour:'Ab Rosendal: +30 Min. Fahrt (ca. 35 km)',
+     time:'⏱️ 2–3 Std. inkl. Anfahrt',
+     tip:'Gletscherwanderungen ab Folgefonnsenteret · Schuhe erforderlich'},
+    {lat:59.827,lng:6.033,icon:'💧',name:'Langfossen Wasserfall',
+     wiki:'Langfossen',
+     detour:'Auf dem Weg Bergen → Rosendal (E39) — kein Umweg',
+     time:'⏱️ 20–30 Min. Stopp',
+     tip:'Direkt von der Strasse sichtbar · einer der schönsten Wasserfälle der Welt'},
+    {lat:59.535,lng:6.535,icon:'🏞️',name:'Sandsfossen Lachsleiter',
+     wiki:'Suldal',
+     detour:'Ab Sand: +10 Min. (ca. 8 km)',
+     time:'⏱️ 30–60 Min.',
+     tip:'Lachse beim Aufstieg zusehen · Juni–September · Hängebrücke'},
+    {lat:59.520,lng:6.060,icon:'⛪',name:'Jelsa Dorf & Kirche',
+     wiki:'Jelsa,_Rogaland',
+     detour:'Ab Sand Richtung Jørpeland: +15 Min. Umweg',
+     time:'⏱️ 30–45 Min.',
+     tip:'Idyllisches Fjorddorf · Kirche aus dem 13. Jh. · weiße Holzhäuser'},
+    {lat:59.640,lng:6.350,icon:'🏛️',name:'Allmannajuvet Sauda',
+     wiki:'Allmannajuvet',
+     detour:'Ab Sand: +45 Min. (ca. 50 km)',
+     time:'⏱️ 1–2 Std.',
+     tip:'Faszinierende Pavillons von Peter Zumthor in wilder Bergschlucht'},
+    {lat:59.008,lng:6.188,icon:'⛰️',name:'Preikestolen (604 m)',
+     wiki:'Preikestolen',
+     detour:'Ab Jørpeland: +10 Min. zum Parkplatz',
+     time:'⏱️ 4–5 Std. Wanderung (8 km)',
+     tip:'Start: Preikestolhytta Parkplatz · früh starten (07:00) · Wanderschuhe'},
+    {lat:59.034,lng:6.568,icon:'🪨',name:'Kjeragbolten',
+     wiki:'Kjerag',
+     detour:'Ab Stavanger: +1h Fahrt (ca. 65 km)',
+     time:'⏱️ 6–8 Std. (ganzer Tag)',
+     tip:'Sehr anspruchsvoll · 12 km · nur bei gutem Wetter · früh starten'},
+    {lat:58.990,lng:6.170,icon:'👁️',name:'Lysefjord Bootsfahrt',
+     wiki:'Lysefjorden',
+     detour:'Ab Stavanger Hafen: direkt',
+     time:'⏱️ 2–3 Std. Bootstour',
+     tip:'Rødne Fjord Cruise ab Stavanger · Blick auf Preikestolen vom Wasser'},
+    {lat:58.974,lng:5.728,icon:'🏘️',name:'Gamle Stavanger',
+     wiki:'Stavanger_Old_Town',
+     detour:'Direkt in Stavanger — kein Umweg',
+     time:'⏱️ 1–2 Std.',
+     tip:'173 weisse Holzhäuser aus dem 18. Jh. · Nordeuropas grösste Altholzstadt'},
+    {lat:58.970,lng:5.734,icon:'⛪',name:'Stavanger Domkirke',
+     wiki:'Stavanger_Cathedral',
+     detour:'Direkt in Stavanger — kein Umweg',
+     time:'⏱️ 30 Min.',
+     tip:'Älteste Kathedrale Norwegens · erbaut 1125 · kostenloser Eintritt'},
+    {lat:58.980,lng:5.752,icon:'🛢️',name:'Norsk Oljemuseum',
+     wiki:'Norwegian_Petroleum_Museum',
+     detour:'Direkt in Stavanger — kein Umweg',
+     time:'⏱️ 1.5–2 Std.',
+     tip:'Interaktives Museum · sehr empfohlen · am Stavanger Hafen'},
+    {lat:59.005,lng:5.610,icon:'🌺',name:'Flor & Fjære',
+     wiki:'Flor_og_Fjære',
+     detour:'Ab Stavanger: 20 Min. Bootsfahrt',
+     time:'⏱️ 4 Std. (Ganztagserlebnis)',
+     tip:'Tropischer Garten auf Privatinsel · inkl. Dinner · Reservierung nötig!'},
+    {lat:58.990,lng:6.400,icon:'🪜',name:'Flørli Treppen',
+     wiki:'Flørli',
+     detour:'Ab Stavanger: 2h Bootsfahrt',
+     time:'⏱️ Ganzer Tag',
+     tip:'4444 Holzstufen · weltlängste Treppe · Fähre Stavanger–Lysebotn'},
+    {lat:59.427,lng:5.276,icon:'🗿',name:'Haraldshaugen',
+     wiki:'Haraldshaugen',
+     detour:'Direkt in Haugesund — kein Umweg',
+     time:'⏱️ 20–30 Min.',
+     tip:'Nationaldenkmal · Grab von König Harald Hårfagre · Einigung Norwegens 872'},
+    {lat:59.500,lng:5.350,icon:'👹',name:'Himakånå',
+     wiki:'Haugesund',
+     detour:'Ab Haugesund: +20 Min. (ca. 15 km)',
+     time:'⏱️ 2–3 Std. Wanderung',
+     tip:'Bergformation wie ein Trollgesicht · einfache Wanderung · toller Ausblick'},
+  ];
+
+  // Fähren (Routen separat, nicht via OSRM)
+  const ferries = [
+    {from:[59.153,5.547], to:[59.153,5.380], label:'⛴️ Mortavika → Arsvågen · ~25 Min. · NOK 178/Auto'},
+    {from:[59.7953,5.3972], to:[59.7953,5.5597], label:'⛴️ Sandvikvåg → Halhjem · ~45 Min. · NOK 176/Auto'},
+  ];
+
+  // Strassensegmente pro Etappe (lng,lat für OSRM!)
+  const roadLegs = [
+    {label:'Flughafen Bergen → Rosendal',  ferry:0,  wp:[[5.2181,60.2934],[6.0138,59.9872]]},
+    {label:'Rosendal → Sand',              ferry:0,  wp:[[6.0138,59.9872],[6.2523,59.4882]]},
+    {label:'Sand → Jørpeland',             ferry:0,  wp:[[6.2523,59.4882],[6.0674,59.0231]]},
+    {label:'Jørpeland → Stavanger',        ferry:0,  wp:[[6.0674,59.0231],[5.7331,58.9700]]},
+    {label:'Stavanger → Haugesund',        ferry:25, wp:[[5.7331,58.9700],[5.547,59.153],[5.380,59.153],[5.2680,59.4138]]},
+    {label:'Haugesund → Flughafen Bergen', ferry:45, wp:[[5.2680,59.4138],[5.3972,59.7953],[5.5597,59.7953],[5.2181,60.2934]]},
+  ];
+
+  function fmtMins(totalMins){
+    const h=Math.floor(totalMins/60), m=totalMins%60;
+    return h>0?(m>0?`${h}h ${m}min`:`${h}h`):`${m}min`;
+  }
+  function formatTotal(durationSec, ferryMin){
+    return fmtMins(Math.round(durationSec/60)+ferryMin);
+  }
+  async function fetchRoute(waypoints){
+    const coords=waypoints.map(w=>w.join(',')).join(';');
+    const url=`https://router.project-osrm.org/route/v1/driving/${coords}?overview=full&geometries=geojson`;
+    const r=await fetch(url);
+    const d=await r.json();
+    if(d.routes&&d.routes[0]){
+      const route=d.routes[0];
+      const pts=route.geometry.coordinates.map(c=>[c[1],c[0]]);
+      const durationSec=route.duration;
+      const timeStr=fmtMins(Math.round(durationSec/60));
+      const distKm=Math.round(route.distance/1000);
+      return {pts, timeStr, distKm, durationSec};
+    }
+    return null;
+  }
+
+  async function initRtMap(){
+    const el=document.getElementById('rt-map');
+    if(!el||el._rtInit) return;
+    el._rtInit=true;
+    const map=L.map('rt-map').setView([59.5,5.7],7);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'© OpenStreetMap',maxZoom:14}).addTo(map);
+
+    // Ladeanzeige
+    const info=document.createElement('div');
+    info.style.cssText='position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:#fff;padding:12px 20px;border-radius:10px;z-index:999;font-size:13px;box-shadow:0 2px 12px rgba(0,0,0,.2)';
+    info.textContent='🗺️ Route wird geladen...';
+    el.appendChild(info);
+
+    // Alle Etappen via OSRM laden
+    const allPts=[];
+    for(const leg of roadLegs){
+      try{
+        const res=await fetchRoute(leg.wp);
+        if(res){
+          L.polyline(res.pts,{color:'#003F87',weight:5,opacity:0.9}).addTo(map);
+          allPts.push(...res.pts);
+          const mid=res.pts[Math.floor(res.pts.length/2)];
+          const driveMin=Math.round(res.distKm>0?res.pts.length>0?parseInt(res.timeStr)*60||0:0:0);
+          // Zeitanzeige: Auto + Fähre + Total
+          let html;
+          if(leg.ferry>0){
+            const totalMin=parseInt(res.timeStr.replace('h','*60+').replace('min','').replace('*60+','*60+0').split('+').reduce((a,b)=>a+ +b,0))||0;
+            // Einfacher: OSRM gibt timeStr, ferry in Minuten
+            html=`<div style="background:#fff;color:#111;border-radius:20px;padding:5px 11px;font-size:11px;font-weight:700;white-space:nowrap;box-shadow:0 2px 8px rgba(0,0,0,.25);border:1.5px solid #003F87;line-height:1.6">🚗 ${leg.label}<br>🚗 Auto: ${res.timeStr} &nbsp;⛴️ Fähre: ${leg.ferry} Min.<br>⏱️ Total: ca. ${formatTotal(res.durationSec, leg.ferry)}</div>`;
+          } else {
+            html=`<div style="background:#fff;color:#111;border-radius:20px;padding:4px 10px;font-size:11px;font-weight:700;white-space:nowrap;box-shadow:0 2px 8px rgba(0,0,0,.25);border:1.5px solid #003F87">🚗 ${leg.label}: ${res.timeStr} · ${res.distKm} km</div>`;
+          }
+          const timeIcon=L.divIcon({html,className:'',iconAnchor:[80,24]});
+          L.marker(mid,{icon:timeIcon,interactive:false}).addTo(map);
+        }
+      }catch(e){}
+    }
+    info.remove();
+
+    // Fähren (orange gestrichelt)
+    ferries.forEach(f=>{
+      const pts=[f.from,f.to];
+      L.polyline(pts,{color:'#E67E22',weight:6,opacity:1,dashArray:'12,7'}).addTo(map);
+      const mid=[(f.from[0]+f.to[0])/2,(f.from[1]+f.to[1])/2];
+      const fIcon=L.divIcon({
+        html:`<div style="background:#fff;color:#111;border-radius:20px;padding:4px 10px;font-size:11px;font-weight:700;white-space:nowrap;box-shadow:0 2px 8px rgba(0,0,0,.25);border:1.5px solid #E67E22">${f.label}</div>`,
+        className:'',iconAnchor:[60,14],popupAnchor:[0,-16]
+      });
+      L.marker(mid,{icon:fIcon}).addTo(map)
+        .bindPopup(`<strong>${f.label}</strong><br><small>Keine Voranmeldung nötig · Zahlung per Karte am Terminal</small>`);
+      allPts.push(...pts);
+    });
+
+    // Hotel-Stops
+    stops.forEach(s=>{
+      const icon=L.divIcon({
+        html:`<div style="background:${s.color};color:#fff;border-radius:50%;width:36px;height:36px;display:flex;align-items:center;justify-content:center;font-size:17px;box-shadow:0 2px 10px rgba(0,0,0,.4);border:3px solid #fff">${s.icon}</div>`,
+        className:'',iconAnchor:[18,18],popupAnchor:[0,-20]
+      });
+      const cityName=s.name.split('(')[0].trim();
+      L.marker([s.lat,s.lng],{icon}).addTo(map)
+        .bindPopup(`<strong>${s.name}</strong><br><span style="font-size:12px;color:#555">${s.hotel}</span>`)
+        .bindTooltip(`<b>${cityName}</b><br><span style="font-size:11px">${s.hotel}</span>`,{permanent:true,direction:'right',className:'rt-label',offset:[18,0]});
+      allPts.push([s.lat,s.lng]);
+    });
+
+    // Detail-Panel
+    const panel=document.createElement('div');
+    panel.id='rt-detail-panel';
+    panel.style.cssText='position:fixed;bottom:0;left:0;right:0;background:#fff;border-radius:20px 20px 0 0;box-shadow:0 -4px 24px rgba(0,0,0,.25);z-index:9999;max-height:75vh;overflow-y:auto;transform:translateY(100%);transition:transform .35s cubic-bezier(.4,0,.2,1);padding:0 0 env(safe-area-inset-bottom)';
+    panel.innerHTML=`
+      <div style="text-align:center;padding:10px 0 0"><div style="width:40px;height:4px;background:#ddd;border-radius:2px;display:inline-block"></div></div>
+      <div id="rt-panel-body" style="padding:16px 20px 24px"></div>`;
+    document.body.appendChild(panel);
+
+    panel.addEventListener('click',e=>{
+      if(e.target===panel||e.target.closest('#rt-panel-close')) closePanel();
+    });
+
+    function closePanel(){ panel.style.transform='translateY(100%)'; }
+
+    async function openHighlight(h){
+      const body=document.getElementById('rt-panel-body');
+      body.innerHTML=`<div style="text-align:center;padding:20px;color:#888">Lade Informationen…</div>`;
+      panel.style.transform='translateY(0)';
+
+      let imgHtml='';
+      let descHtml='';
+      try{
+        const res=await fetch('https://en.wikipedia.org/api/rest_v1/page/summary/'+encodeURIComponent(h.wiki));
+        if(res.ok){
+          const data=await res.json();
+          if(data.thumbnail?.source) imgHtml=`<img src="${data.thumbnail.source}" style="width:100%;max-height:200px;object-fit:cover;border-radius:12px;margin-bottom:12px">`;
+          if(data.extract) descHtml=`<p style="margin:0 0 14px;font-size:14px;line-height:1.6;color:#333">${data.extract.split('. ').slice(0,3).join('. ')}.</p>`;
+        }
+      }catch(e){}
+
+      body.innerHTML=`
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+          <h3 style="margin:0;font-size:18px;color:#003F87">${h.icon} ${h.name}</h3>
+          <button id="rt-panel-close" style="background:none;border:none;font-size:22px;cursor:pointer;color:#888;padding:4px 8px">✕</button>
+        </div>
+        ${imgHtml}
+        ${descHtml}
+        <div style="background:#f0f4ff;border-radius:12px;padding:12px 14px;margin-bottom:12px">
+          <div style="font-weight:700;color:#003F87;margin-bottom:6px">🚗 Anfahrt / Abstecher</div>
+          <div style="font-size:14px;color:#333">${h.detour}</div>
+        </div>
+        <div style="background:#fff8e1;border-radius:12px;padding:12px 14px;margin-bottom:12px">
+          <div style="font-weight:700;color:#E67E22;margin-bottom:4px">${h.time}</div>
+          <div style="font-size:14px;color:#555">💡 ${h.tip}</div>
+        </div>
+        <button onclick="document.getElementById('rt-detail-panel').style.transform='translateY(100%)'" style="width:100%;padding:12px;background:#003F87;color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer;margin-top:4px">Schliessen</button>`;
+    }
+
+    // Sightseeing Highlights
+    highlights.forEach(h=>{
+      const icon=L.divIcon({
+        html:`<div style="background:#fff;border:2px solid #8E44AD;border-radius:50%;width:30px;height:30px;display:flex;align-items:center;justify-content:center;font-size:15px;box-shadow:0 2px 8px rgba(0,0,0,.25)">${h.icon}</div>`,
+        className:'',iconAnchor:[15,15],popupAnchor:[0,-18]
+      });
+      L.marker([h.lat,h.lng],{icon}).addTo(map)
+        .on('click',()=>openHighlight(h));
+    });
+
+    // Legende
+    const legend=L.control({position:'bottomleft'});
+    legend.onAdd=()=>{
+      const d=L.DomUtil.create('div');
+      d.style.cssText='background:rgba(255,255,255,.95);padding:10px 14px;border-radius:10px;box-shadow:0 2px 10px rgba(0,0,0,.2);font-size:12px;line-height:2';
+      d.innerHTML='<b style="display:block;margin-bottom:2px">Legende</b>'
+        +'<div><span style="display:inline-block;width:20px;height:4px;background:#003F87;margin-right:6px;vertical-align:middle;border-radius:2px"></span>Autostrasse</div>'
+        +'<div><span style="display:inline-block;width:20px;height:4px;background:#E67E22;border-top:3px dashed #E67E22;margin-right:6px;vertical-align:middle"></span>Fähre</div>'
+        +'<div>✈️ Start &nbsp; 🏁 Ziel &nbsp; 🏨 Hotel</div>'
+        +'<div><span style="display:inline-block;width:20px;height:20px;background:#fff;border:2px solid #8E44AD;border-radius:50%;text-align:center;line-height:18px;font-size:11px;margin-right:6px;vertical-align:middle">⛰️</span>Highlight</div>';
+      return d;
+    };
+    legend.addTo(map);
+
+    if(allPts.length) map.fitBounds(L.latLngBounds(allPts).pad(0.08));
+  }
+
+  const obs=new IntersectionObserver(entries=>{
+    if(entries[0].isIntersecting) initRtMap();
+  },{threshold:0.1});
+  const el=document.getElementById('rt-map');
+  if(el) obs.observe(el);
 })();
 
 </script>
