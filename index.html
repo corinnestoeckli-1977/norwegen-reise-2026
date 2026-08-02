@@ -3744,6 +3744,7 @@ const RAG = (() => {
      tip:'Lachse beim Aufstieg zusehen · Juni–September · Hängebrücke'},
     {lat:59.520,lng:6.060,icon:'⛪',name:'Jelsa Dorf & Kirche',
      wiki:'Jelsa,_Rogaland',
+     img:'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a2/Jelsa_kirke.jpg/640px-Jelsa_kirke.jpg',
      detour:'Ab Sand Richtung Jørpeland: +15 Min. Umweg',
      time:'⏱️ 30–45 Min.',
      tip:'Idyllisches Fjorddorf · Kirche aus dem 13. Jh. · weiße Holzhäuser'},
@@ -3936,6 +3937,7 @@ const RAG = (() => {
         if(res.ok){
           const data=await res.json();
           if(data.thumbnail?.source) imgHtml=`<img src="${data.thumbnail.source}" style="width:100%;max-height:200px;object-fit:cover;border-radius:12px;margin-bottom:12px">`;
+        else if(h.img) imgHtml=`<img src="${h.img}" style="width:100%;max-height:200px;object-fit:cover;border-radius:12px;margin-bottom:12px">`;
           if(data.extract) descHtml=`<p style="margin:0 0 14px;font-size:14px;line-height:1.6;color:#333">${data.extract.split('. ').slice(0,3).join('. ')}.</p>`;
         }
       }catch(e){}
