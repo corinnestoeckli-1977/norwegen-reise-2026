@@ -3971,8 +3971,11 @@ const RAG = (() => {
     // Hotel-Stops
     stops.forEach(s=>{
       const icon=L.divIcon({
-        html:`<div style="background:${s.color};color:#fff;border-radius:50%;width:36px;height:36px;display:flex;align-items:center;justify-content:center;font-size:17px;box-shadow:0 2px 10px rgba(0,0,0,.4);border:3px solid #fff">${s.icon}</div>`,
-        className:'',iconAnchor:[18,18],popupAnchor:[0,-20]
+        html:`<div style="position:relative;width:34px;height:42px">
+          <div style="position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:0;height:0;border-left:10px solid transparent;border-right:10px solid transparent;border-top:12px solid ${s.color}"></div>
+          <div style="position:absolute;top:0;left:50%;transform:translateX(-50%);background:${s.color};border-radius:10px;width:34px;height:34px;display:flex;align-items:center;justify-content:center;font-size:18px;box-shadow:0 2px 10px rgba(0,0,0,.4);border:2px solid #fff">${s.icon}</div>
+        </div>`,
+        className:'',iconAnchor:[17,42],popupAnchor:[0,-44]
       });
       const cityName=s.name.split('(')[0].trim();
       L.marker([s.lat,s.lng],{icon}).addTo(map)
