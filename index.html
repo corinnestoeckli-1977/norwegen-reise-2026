@@ -3711,19 +3711,69 @@ const RAG = (() => {
 // ===== MIETWAGENRUNDREISE KARTE =====
 (function(){
   const stops = [
-    {name:'Bergen Flughafen (Start · 7. Aug.)', lat:60.2934, lng:5.2181, hotel:'Mietwagenabholung Flughafen', color:'#003F87', icon:'✈️'},
-    {name:'Rosendal (7.–9. Aug.)', lat:59.9872, lng:6.0138, hotel:'Rosendal Fjordhotel', color:'#27AE60', icon:'🏨'},
-    {name:'Sand / Ryfylke (9.–10. Aug.)', lat:59.4882, lng:6.2523, hotel:'Ryfylke Fjordhotell', color:'#27AE60', icon:'🏨'},
-    {name:'Jørpeland / Preikestolen (10.–12. Aug.)', lat:59.0231, lng:6.0674, hotel:'Preikestolen Mountain Lodge', color:'#27AE60', icon:'🏨'},
-    {name:'Stavanger (12.–13. Aug.)', lat:58.9700, lng:5.7331, hotel:'Comfort Hotel Square', color:'#27AE60', icon:'🏨'},
-    {name:'Haugesund (13.–14. Aug.)', lat:59.4138, lng:5.2680, hotel:'Quality Hotel Maritim', color:'#27AE60', icon:'🏨'},
-    {name:'Bergen Flughafen (Ziel · 14. Aug.)', lat:60.2934, lng:5.2181, hotel:'Comfort Hotel Airport · Rückgabe Mietwagen', color:'#E74C3C', icon:'🏁'},
+    {name:'Bergen Flughafen (Start · 7. Aug.)', lat:60.2934, lng:5.2181, hotel:'Mietwagenabholung Flughafen', color:'#003F87', icon:'✈️',
+     wiki:'Bergen',
+     img:'https://upload.wikimedia.org/wikipedia/commons/thumb/6/6a/Bryggen_2013.jpg/640px-Bryggen_2013.jpg',
+     stadtInfo:'Bergen ist die zweitgrösste Stadt Norwegens und Tor zu den Fjorden. Das UNESCO-Welterbe Bryggen prägt das Stadtbild.',
+     hotelInfo:'Comfort Hotel Airport — direkt am Flughafen, ideal für frühe Abreise oder späte Ankunft.',
+     hotelImg:'https://upload.wikimedia.org/wikipedia/commons/thumb/8/8e/Bergen_airport_Flesland.jpg/640px-Bergen_airport_Flesland.jpg',
+     sightsIn:['Bryggen (UNESCO-Welterbe) — historische Hanseatenhäuser','Fisketorget — Fischmarkt direkt am Hafen','Fløibanen — Standseilbahn mit Panoramablick über Bergen'],
+     sightsOut:['Hardangerfjord — ca. 1.5h Fahrt, einer der schönsten Fjorde','Lysøen — Insel mit historischer Villa von Ole Bull','Sognefjord — längster Fjord der Welt, ca. 2h Fahrt']},
+    {name:'Rosendal (7.–9. Aug.)', lat:59.9872, lng:6.0138, hotel:'Rosendal Fjordhotel', color:'#27AE60', icon:'🏨',
+     wiki:'Rosendal',
+     img:'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e5/Rosendal_Norway.jpg/640px-Rosendal_Norway.jpg',
+     stadtInfo:'Rosendal ist ein idyllisches Dorf im Hardangerfjord, bekannt für Norwegens einziges Baronie und atemberaubende Fjord- und Gletscherkulisse.',
+     hotelInfo:'Rosendal Fjordhotel — charmantes Hotel direkt am Fjord mit Blick auf Folgefonna-Gletscher und Baroniet.',
+     hotelImg:'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2f/Baroniet_Rosendal.jpg/640px-Baroniet_Rosendal.jpg',
+     sightsIn:['Baroniet Rosendal — Schloss, Rosengarten, Museum (1h–2h)','Fjordblick-Spaziergang entlang des Hafens','Lokale Obstgärten — Hardanger ist berühmt für Äpfel und Kirschen'],
+     sightsOut:['Folgefonna Gletscher — +30 Min. Fahrt, Gletscherwanderung','Langfossen Wasserfall — auf dem Weg, direkt von der E39 sichtbar','Åkrafjorden Aussichtspunkt — wilde Fjordlandschaft']},
+    {name:'Sand / Ryfylke (9.–10. Aug.)', lat:59.4882, lng:6.2523, hotel:'Ryfylke Fjordhotell', color:'#27AE60', icon:'🏨',
+     wiki:'Sand,_Rogaland',
+     img:'https://upload.wikimedia.org/wikipedia/commons/thumb/7/7e/Sand_i_Ryfylke.jpg/640px-Sand_i_Ryfylke.jpg',
+     stadtInfo:'Sand ist ein kleines Dorf im Suldalsfjord (Ryfylke). Die Region ist bekannt für Lachsreichtum, Wasserfälle und wilde Berglandschaft.',
+     hotelInfo:'Ryfylke Fjordhotell — ruhiges Hotel direkt am Fjord, mit wunderbarem Ausblick auf Suldalsvatnet.',
+     hotelImg:'https://upload.wikimedia.org/wikipedia/commons/thumb/5/5d/Suldalsvatnet.jpg/640px-Suldalsvatnet.jpg',
+     sightsIn:['Lachsbrunnen Sand — historisches Fischdorf-Museum','Fjordspaziergang Suldalsfjord','Lokale Cafés und Fischrestaurants'],
+     sightsOut:['Sandsfossen Lachsleiter — +10 Min., Lachse beim Aufstieg beobachten','Allmannajuvet Sauda — +45 Min., Peter-Zumthor-Pavillons in Bergschlucht','Jelsa Dorf & Kirche — +15 Min., mittelalterliche Kirche am Fjord']},
+    {name:'Jørpeland / Preikestolen (10.–12. Aug.)', lat:59.0231, lng:6.0674, hotel:'Preikestolen Mountain Lodge', color:'#27AE60', icon:'🏨',
+     wiki:'Jørpeland',
+     img:'https://upload.wikimedia.org/wikipedia/commons/thumb/4/4e/Preikestolen_2009.jpg/640px-Preikestolen_2009.jpg',
+     stadtInfo:'Jørpeland liegt am Høgsfjord und ist Ausgangspunkt für die berühmte Preikestolen-Wanderung. Idyllische Fjordlandschaft im Rogaland.',
+     hotelInfo:'Preikestolen Mountain Lodge — komfortables Hotel/Hostel direkt am Wanderparkplatz, ideal für frühen Start.',
+     hotelImg:'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a3/Preikestolen_fjord.jpg/640px-Preikestolen_fjord.jpg',
+     sightsIn:['Jørpeland Sentrum — kleines Hafenstädtchen','Strand og Sjø — Fjordstrand für kurze Pausen','Lokale Supermärkte für Wanderverpflegung'],
+     sightsOut:['Preikestolen (604 m) — 4–5 Std. Wanderung, früh starten!','Lysefjord Bootsfahrt ab Stavanger — Blick von unten auf den Felsen','Kjeragbolten — ganzer Tag, sehr anspruchsvoll (nur für Geübte)']},
+    {name:'Stavanger (12.–13. Aug.)', lat:58.9700, lng:5.7331, hotel:'Comfort Hotel Square', color:'#27AE60', icon:'🏨',
+     wiki:'Stavanger',
+     img:'https://upload.wikimedia.org/wikipedia/commons/thumb/8/81/Stavanger_harbour.jpg/640px-Stavanger_harbour.jpg',
+     stadtInfo:'Stavanger ist die Ölhauptstadt Norwegens und eine lebhafte Hafenstadt mit toller Altstadt, Museen und direktem Zugang zum Lysefjord.',
+     hotelInfo:'Comfort Hotel Square — zentral in der Innenstadt, Fussweg zu allen Sehenswürdigkeiten und zum Hafen.',
+     hotelImg:'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c8/Stavanger_old_town.jpg/640px-Stavanger_old_town.jpg',
+     sightsIn:['Gamle Stavanger — 173 weisse Holzhäuser, älteste Holzstadt Nordeuropas','Stavanger Domkirke — Kathedrale von 1125, kostenloser Eintritt','Norsk Oljemuseum — interaktives Erdölmuseum, sehr empfohlen'],
+     sightsOut:['Lysefjord Bootsfahrt (Rødne Cruise) — 2–3 Std. ab Stavanger Hafen','Flor & Fjære — tropischer Garten auf Privatinsel, Bootsfahrt 20 Min.','Preikestolen — auch von Stavanger möglich (1h Fahrt nach Jørpeland)']},
+    {name:'Haugesund (13.–14. Aug.)', lat:59.4138, lng:5.2680, hotel:'Quality Hotel Maritim', color:'#27AE60', icon:'🏨',
+     wiki:'Haugesund',
+     img:'https://upload.wikimedia.org/wikipedia/commons/thumb/3/33/Haugesund_harbour.jpg/640px-Haugesund_harbour.jpg',
+     stadtInfo:'Haugesund ist eine lebhafte Küstenstadt, Geburtsort der norwegischen Einigung 872 n.Chr. Bekannt für Hering, Jazz-Festival und Filmfestival.',
+     hotelInfo:'Quality Hotel Maritim — direkt am Hafen, schöne Aussicht, kurze Wege zur Innenstadt.',
+     hotelImg:'https://upload.wikimedia.org/wikipedia/commons/thumb/3/33/Haugesund_harbour.jpg/640px-Haugesund_harbour.jpg',
+     sightsIn:['Haraldshaugen — Nationaldenkmal König Harald (Einigung 872)','Haugesund Sentrum — lebhafte Fussgängerzone','Smedasundet — Kanal mit Cafés, Bars und Restaurants'],
+     sightsOut:['Himakånå — +20 Min. Wanderung mit Trollgesicht-Felsformation','Skudenes — charmantes weisses Fischerdorf, +45 Min. Fahrt','Fähre nach Halhjem (ab Sandvikvåg) — erste Etappe zurück nach Bergen']},
+    {name:'Bergen Flughafen (Ziel · 14. Aug.)', lat:60.2934, lng:5.2181, hotel:'Comfort Hotel Airport · Rückgabe Mietwagen', color:'#E74C3C', icon:'🏁',
+     wiki:'Bergen_Airport,_Flesland',
+     img:'https://upload.wikimedia.org/wikipedia/commons/thumb/6/6a/Bryggen_2013.jpg/640px-Bryggen_2013.jpg',
+     stadtInfo:'Rückgabe des Mietwagens am Flughafen Bergen Flesland. Die Mietwagenrückgabe ist direkt am Terminal ausgeschildert.',
+     hotelInfo:'Comfort Hotel Airport — bei Bedarf letztes Übernachten vor Heimflug.',
+     hotelImg:'https://upload.wikimedia.org/wikipedia/commons/thumb/8/8e/Bergen_airport_Flesland.jpg/640px-Bergen_airport_Flesland.jpg',
+     sightsIn:['Mietwagen rechtzeitig zurückgeben (mind. 1h vor Flug)','Flughafen Bergen hat Einkaufsmöglichkeiten und Restaurants'],
+     sightsOut:['Bei Zeitpuffer: Bergen Sentrum nur 30 Min. mit Flughafenbus']},
   ];
 
   // Sightseeing Highlights mit Wiki, Detour und Zeitaufwand
   const highlights = [
     {lat:59.9867,lng:6.0147,icon:'🏰',name:'Baroniet Rosendal',
      wiki:'Rosendal_Barony',
+     img:'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2f/Baroniet_Rosendal.jpg/640px-Baroniet_Rosendal.jpg',
      detour:'Direkt in Rosendal — kein Umweg nötig',
      time:'⏱️ 1–2 Std. Besichtigung',
      tip:'Geführte Tour durch Schloss & Rosengarten · Restaurant vor Ort'},
@@ -3926,7 +3976,7 @@ const RAG = (() => {
       });
       const cityName=s.name.split('(')[0].trim();
       L.marker([s.lat,s.lng],{icon}).addTo(map)
-        .bindPopup(`<strong>${s.name}</strong><br><span style="font-size:12px;color:#555">${s.hotel}</span>`)
+        .on('click',()=>openStop(s))
         .bindTooltip(`<b>${cityName}</b><br><span style="font-size:11px">${s.hotel}</span>`,{permanent:true,direction:'right',className:'rt-label',offset:[18,0]});
       allPts.push([s.lat,s.lng]);
     });
@@ -3988,6 +4038,43 @@ const RAG = (() => {
           <div style="font-weight:700;color:#E67E22;margin-bottom:4px">${h.time}</div>
           <div style="font-size:14px;color:#555">💡 ${h.tip}</div>
         </div>
+        <button onclick="document.getElementById('rt-detail-panel').style.transform='translateY(100%)'" style="width:100%;padding:12px;background:#003F87;color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer;margin-top:4px">Schliessen</button>`;
+    }
+
+    async function openStop(s){
+      const body=document.getElementById('rt-panel-body');
+      body.innerHTML=`<div style="text-align:center;padding:20px;color:#888">Lade Informationen…</div>`;
+      panel.style.transform='translateY(0)';
+
+      let imgHtml=s.img?`<img src="${s.img}" style="width:100%;max-height:200px;object-fit:cover;border-radius:12px;margin-bottom:12px" onerror="this.style.display='none'">`:'';
+
+      const inList=(s.sightsIn||[]).map(t=>`<li style="margin-bottom:4px">${t}</li>`).join('');
+      const outList=(s.sightsOut||[]).map(t=>`<li style="margin-bottom:4px">${t}</li>`).join('');
+
+      body.innerHTML=`
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+          <h3 style="margin:0;font-size:17px;color:#003F87">${s.icon} ${s.name}</h3>
+          <button id="rt-panel-close" style="background:none;border:none;font-size:22px;cursor:pointer;color:#888;padding:4px 8px">✕</button>
+        </div>
+        ${imgHtml}
+        <p style="margin:0 0 14px;font-size:14px;line-height:1.6;color:#333">${s.stadtInfo||''}</p>
+
+        <div style="background:#e8f4fd;border-radius:12px;padding:12px 14px;margin-bottom:12px">
+          <div style="font-weight:700;color:#003F87;margin-bottom:6px">🏨 ${s.hotel}</div>
+          <div style="font-size:13px;color:#333">${s.hotelInfo||''}</div>
+          ${s.hotelImg&&s.hotelImg!==s.img?`<img src="${s.hotelImg}" style="width:100%;max-height:160px;object-fit:cover;border-radius:10px;margin-top:10px" onerror="this.style.display='none'">`:''}
+        </div>
+
+        ${inList?`<div style="background:#f0fff4;border-radius:12px;padding:12px 14px;margin-bottom:12px">
+          <div style="font-weight:700;color:#27AE60;margin-bottom:6px">📍 Sightseeing im Ort</div>
+          <ul style="margin:0;padding-left:18px;font-size:13px;color:#333;line-height:1.7">${inList}</ul>
+        </div>`:''}
+
+        ${outList?`<div style="background:#fff8e1;border-radius:12px;padding:12px 14px;margin-bottom:12px">
+          <div style="font-weight:700;color:#E67E22;margin-bottom:6px">🗺️ Ausflüge & Umgebung</div>
+          <ul style="margin:0;padding-left:18px;font-size:13px;color:#333;line-height:1.7">${outList}</ul>
+        </div>`:''}
+
         <button onclick="document.getElementById('rt-detail-panel').style.transform='translateY(100%)'" style="width:100%;padding:12px;background:#003F87;color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer;margin-top:4px">Schliessen</button>`;
     }
 
