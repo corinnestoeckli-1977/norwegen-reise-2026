@@ -3739,6 +3739,7 @@ const RAG = (() => {
      tip:'Direkt von der Strasse sichtbar · einer der schönsten Wasserfälle der Welt'},
     {lat:59.535,lng:6.535,icon:'🏞️',name:'Sandsfossen Lachsleiter',
      wiki:'Suldal',
+     img:'https://upload.wikimedia.org/wikipedia/commons/thumb/4/4d/Sandsfossen_salmon_ladder.jpg/640px-Sandsfossen_salmon_ladder.jpg',
      detour:'Ab Sand: +10 Min. (ca. 8 km)',
      time:'⏱️ 30–60 Min.',
      tip:'Lachse beim Aufstieg zusehen · Juni–September · Hängebrücke'},
@@ -3785,6 +3786,7 @@ const RAG = (() => {
      tip:'Interaktives Museum · sehr empfohlen · am Stavanger Hafen'},
     {lat:59.005,lng:5.610,icon:'🌺',name:'Flor & Fjære',
      wiki:'Flor_og_Fjære',
+     img:'https://upload.wikimedia.org/wikipedia/commons/thumb/1/1d/Flor_og_Fj%C3%A6re_2013.jpg/640px-Flor_og_Fj%C3%A6re_2013.jpg',
      detour:'Ab Stavanger: 20 Min. Bootsfahrt',
      time:'⏱️ 4 Std. (Ganztagserlebnis)',
      tip:'Tropischer Garten auf Privatinsel · inkl. Dinner · Reservierung nötig!'},
@@ -3800,6 +3802,7 @@ const RAG = (() => {
      tip:'Nationaldenkmal · Grab von König Harald Hårfagre · Einigung Norwegens 872'},
     {lat:59.500,lng:5.350,icon:'👹',name:'Himakånå',
      wiki:'Haugesund',
+     img:'https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/Himak%C3%A5n%C3%A5.jpg/640px-Himak%C3%A5n%C3%A5.jpg',
      detour:'Ab Haugesund: +20 Min. (ca. 15 km)',
      time:'⏱️ 2–3 Std. Wanderung',
      tip:'Bergformation wie ein Trollgesicht · einfache Wanderung · toller Ausblick'},
@@ -3808,19 +3811,18 @@ const RAG = (() => {
   // Tankstellen entlang der Route
   const gasStations = [
     {lat:60.291,lng:5.224, name:'Circle K Bergen Lufthavn', brand:'Circle K'},
-    {lat:59.901,lng:5.671, name:'Circle K Stord / Os', brand:'Circle K'},
-    {lat:59.987,lng:6.013, name:'Uno-X Rosendal', brand:'Uno-X'},
-    {lat:60.068,lng:6.546, name:'Circle K Odda', brand:'Circle K'},
-    {lat:59.484,lng:6.252, name:'Uno-X Sand', brand:'Uno-X'},
+    {lat:60.184,lng:5.391, name:'Circle K Os (vor Halhjem-Fähre)', brand:'Circle K'},
+    {lat:59.901,lng:5.671, name:'Uno-X Leirvik / Stord', brand:'Uno-X'},
+    {lat:60.068,lng:6.546, name:'Circle K Odda (nächste TK zu Rosendal)', brand:'Circle K'},
+    {lat:59.777,lng:6.019, name:'Shell Kvinnherad / Husnes', brand:'Shell'},
+    {lat:59.484,lng:6.252, name:'Circle K Sand Sentrum', brand:'Circle K'},
     {lat:59.502,lng:6.328, name:'Shell Suldalsosen', brand:'Shell'},
     {lat:59.023,lng:6.068, name:'Circle K Jørpeland', brand:'Circle K'},
     {lat:58.975,lng:5.731, name:'Circle K Stavanger Sentrum', brand:'Circle K'},
     {lat:58.961,lng:5.681, name:'Shell Stavanger Forus', brand:'Shell'},
-    {lat:59.150,lng:5.540, name:'Circle K Mortavika (Fähre)', brand:'Circle K'},
-    {lat:59.413,lng:5.268, name:'Circle K Haugesund', brand:'Circle K'},
+    {lat:59.150,lng:5.540, name:'Circle K Arsvågen (nach Fähre Mortavika)', brand:'Circle K'},
+    {lat:59.413,lng:5.268, name:'Circle K Haugesund Sentrum', brand:'Circle K'},
     {lat:59.391,lng:5.295, name:'Uno-X Haugesund Syd', brand:'Uno-X'},
-    {lat:59.783,lng:5.401, name:'Shell Sandvikvåg (Fähre)', brand:'Shell'},
-    {lat:60.184,lng:5.391, name:'Circle K Os / Bergen Syd', brand:'Circle K'},
   ];
 
   // Fähren (Routen separat, nicht via OSRM)
@@ -3954,11 +3956,21 @@ const RAG = (() => {
         const res=await fetch('https://en.wikipedia.org/api/rest_v1/page/summary/'+encodeURIComponent(h.wiki));
         if(res.ok){
           const data=await res.json();
-          if(data.thumbnail?.source) imgHtml=`<img src="${data.thumbnail.source}" style="width:100%;max-height:200px;object-fit:cover;border-radius:12px;margin-bottom:12px">`;
-        else if(h.img) imgHtml=`<img src="${h.img}" style="width:100%;max-height:200px;object-fit:cover;border-radius:12px;margin-bottom:12px">`;
+          if(data.thumbnail?.source) imgHtml=`<img src="${data.thumbnail.source.replace(/\/\d+px-/,'/640px-')}" style="width:100%;max-height:200px;object-fit:cover;border-radius:12px;margin-bottom:12px">`;
           if(data.extract) descHtml=`<p style="margin:0 0 14px;font-size:14px;line-height:1.6;color:#333">${data.extract.split('. ').slice(0,3).join('. ')}.</p>`;
         }
-      }catch(e){}
+        if(!imgHtml){
+          const resNo=await fetch('https://no.wikipedia.org/api/rest_v1/page/summary/'+encodeURIComponent(h.wiki));
+          if(resNo.ok){
+            const dataN=await resNo.json();
+            if(dataN.thumbnail?.source) imgHtml=`<img src="${dataN.thumbnail.source.replace(/\/\d+px-/,'/640px-')}" style="width:100%;max-height:200px;object-fit:cover;border-radius:12px;margin-bottom:12px">`;
+            if(!descHtml&&dataN.extract) descHtml=`<p style="margin:0 0 14px;font-size:14px;line-height:1.6;color:#333">${dataN.extract.split('. ').slice(0,3).join('. ')}.</p>`;
+          }
+        }
+        if(!imgHtml&&h.img) imgHtml=`<img src="${h.img}" style="width:100%;max-height:200px;object-fit:cover;border-radius:12px;margin-bottom:12px">`;
+      }catch(e){
+        if(h.img) imgHtml=`<img src="${h.img}" style="width:100%;max-height:200px;object-fit:cover;border-radius:12px;margin-bottom:12px">`;
+      }
 
       body.innerHTML=`
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
