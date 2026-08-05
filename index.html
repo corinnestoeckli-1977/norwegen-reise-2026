@@ -3711,62 +3711,85 @@ const RAG = (() => {
 // ===== MIETWAGENRUNDREISE KARTE =====
 (function(){
   const stops = [
-    {name:'Bergen Flughafen (Start · 7. Aug.)', lat:60.2934, lng:5.2181, hotel:'Mietwagenabholung Flughafen', color:'#003F87', icon:'✈️',
+    {name:'Bergen Flughafen (Start · 7. Aug.)', lat:60.2934, lng:5.2181, hotel:'Mietwagenabholung Flughafen', color:'#003F87', icon:'🏠',
      wiki:'Bergen',
-     img:'https://upload.wikimedia.org/wikipedia/commons/thumb/6/6a/Bryggen_2013.jpg/640px-Bryggen_2013.jpg',
+     photos:['https://upload.wikimedia.org/wikipedia/commons/thumb/6/6a/Bryggen_2013.jpg/640px-Bryggen_2013.jpg','https://upload.wikimedia.org/wikipedia/commons/thumb/0/06/Bergen_fish_market.jpg/640px-Bergen_fish_market.jpg','https://upload.wikimedia.org/wikipedia/commons/thumb/a/a3/Fl%C3%B8ibanen_2010.jpg/640px-Fl%C3%B8ibanen_2010.jpg'],
      stadtInfo:'Bergen ist die zweitgrösste Stadt Norwegens und Tor zu den Fjorden. Das UNESCO-Welterbe Bryggen prägt das Stadtbild.',
      hotelInfo:'Comfort Hotel Airport — direkt am Flughafen, ideal für frühe Abreise oder späte Ankunft.',
-     hotelImg:'https://upload.wikimedia.org/wikipedia/commons/thumb/8/8e/Bergen_airport_Flesland.jpg/640px-Bergen_airport_Flesland.jpg',
      sightsIn:['Bryggen (UNESCO-Welterbe) — historische Hanseatenhäuser','Fisketorget — Fischmarkt direkt am Hafen','Fløibanen — Standseilbahn mit Panoramablick über Bergen'],
-     sightsOut:['Hardangerfjord — ca. 1.5h Fahrt, einer der schönsten Fjorde','Lysøen — Insel mit historischer Villa von Ole Bull','Sognefjord — längster Fjord der Welt, ca. 2h Fahrt']},
-    {name:'Rosendal (7.–9. Aug.)', lat:59.9872, lng:6.0138, hotel:'Rosendal Fjordhotel', color:'#27AE60', icon:'🏨',
+     sightsOut:['Hardangerfjord — ca. 1.5h Fahrt, einer der schönsten Fjorde','Lysøen — Insel mit historischer Villa von Ole Bull','Sognefjord — längster Fjord der Welt, ca. 2h Fahrt'],
+     hikes:[
+       {name:'Fløyfjellet via Fløibanen', diff:'⭐ Leicht', dist:'2 km / 1 Std.', desc:'Mit der Standseilbahn hoch, kurze Wanderung auf dem Gipfel. Toller Blick über Bergen.'},
+       {name:'Ulriken (643 m)', diff:'⭐⭐⭐ Mittel–Schwer', dist:'8 km / 3–4 Std.', desc:'Höchster der 7 Berge Bergensaufstieg. Kondition nötig. Seilbahn als Alternative verfügbar.'},
+     ]},
+    {name:'Rosendal (7.–9. Aug.)', lat:59.9872, lng:6.0138, hotel:'Rosendal Fjordhotel', color:'#27AE60', icon:'🏠',
      wiki:'Rosendal',
-     img:'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e5/Rosendal_Norway.jpg/640px-Rosendal_Norway.jpg',
+     photos:['https://upload.wikimedia.org/wikipedia/commons/thumb/2/2f/Baroniet_Rosendal.jpg/640px-Baroniet_Rosendal.jpg','https://upload.wikimedia.org/wikipedia/commons/thumb/e/e5/Rosendal_Norway.jpg/640px-Rosendal_Norway.jpg','https://upload.wikimedia.org/wikipedia/commons/thumb/8/8e/Folgefonna_nasjonalpark.jpg/640px-Folgefonna_nasjonalpark.jpg'],
      stadtInfo:'Rosendal ist ein idyllisches Dorf im Hardangerfjord, bekannt für Norwegens einziges Baronie und atemberaubende Fjord- und Gletscherkulisse.',
      hotelInfo:'Rosendal Fjordhotel — charmantes Hotel direkt am Fjord mit Blick auf Folgefonna-Gletscher und Baroniet.',
-     hotelImg:'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2f/Baroniet_Rosendal.jpg/640px-Baroniet_Rosendal.jpg',
      sightsIn:['Baroniet Rosendal — Schloss, Rosengarten, Museum (1h–2h)','Fjordblick-Spaziergang entlang des Hafens','Lokale Obstgärten — Hardanger ist berühmt für Äpfel und Kirschen'],
-     sightsOut:['Folgefonna Gletscher — +30 Min. Fahrt, Gletscherwanderung','Langfossen Wasserfall — auf dem Weg, direkt von der E39 sichtbar','Åkrafjorden Aussichtspunkt — wilde Fjordlandschaft']},
-    {name:'Sand / Ryfylke (9.–10. Aug.)', lat:59.4882, lng:6.2523, hotel:'Ryfylke Fjordhotell', color:'#27AE60', icon:'🏨',
+     sightsOut:['Folgefonna Gletscher — +30 Min. Fahrt, Gletscherwanderung','Langfossen Wasserfall — auf dem Weg, direkt von der E39 sichtbar','Åkrafjorden Aussichtspunkt — wilde Fjordlandschaft'],
+     hikes:[
+       {name:'Melderskin (1426 m)', diff:'⭐⭐⭐ Schwer', dist:'12 km / 5–6 Std. · Anfahrt: 0 Min.', desc:'Anspruchsvolle Tour auf den höchsten Gipfel der Region mit fantastischem Blick auf Gletscher und Hardangerfjord. Nur bei gutem Wetter.'},
+       {name:'Baronihagen Spaziergang', diff:'⭐ Leicht', dist:'2 km / 45 Min. · Anfahrt: 0 Min.', desc:'Entspannter Rundweg durch den Schlosspark und den historischen Rosengarten. Ideal für alle Altersgruppen.'},
+       {name:'Folgefonna Gletscher (geführt)', diff:'⭐⭐ Mittel', dist:'3 km / 2 Std. · Anfahrt: 30 Min.', desc:'Geführte Gletschertour ab Folgefonnsenteret. Festes Schuhwerk und warme Jacke nötig. Buchung vor Ort.'},
+     ]},
+    {name:'Sand / Ryfylke (9.–10. Aug.)', lat:59.4882, lng:6.2523, hotel:'Ryfylke Fjordhotell', color:'#27AE60', icon:'🏠',
      wiki:'Sand,_Rogaland',
-     img:'https://upload.wikimedia.org/wikipedia/commons/thumb/7/7e/Sand_i_Ryfylke.jpg/640px-Sand_i_Ryfylke.jpg',
+     photos:['https://upload.wikimedia.org/wikipedia/commons/thumb/7/7e/Sand_i_Ryfylke.jpg/640px-Sand_i_Ryfylke.jpg','https://upload.wikimedia.org/wikipedia/commons/thumb/5/5d/Suldalsvatnet.jpg/640px-Suldalsvatnet.jpg','https://upload.wikimedia.org/wikipedia/commons/thumb/b/b6/Lakseparken_i_Sand.jpg/640px-Lakseparken_i_Sand.jpg'],
      stadtInfo:'Sand ist ein kleines Dorf im Suldalsfjord (Ryfylke). Die Region ist bekannt für Lachsreichtum, Wasserfälle und wilde Berglandschaft.',
      hotelInfo:'Ryfylke Fjordhotell — ruhiges Hotel direkt am Fjord, mit wunderbarem Ausblick auf Suldalsvatnet.',
-     hotelImg:'https://upload.wikimedia.org/wikipedia/commons/thumb/5/5d/Suldalsvatnet.jpg/640px-Suldalsvatnet.jpg',
      sightsIn:['Lachsbrunnen Sand — historisches Fischdorf-Museum','Fjordspaziergang Suldalsfjord','Lokale Cafés und Fischrestaurants'],
-     sightsOut:['Sandsfossen Lachsleiter — +10 Min., Lachse beim Aufstieg beobachten','Allmannajuvet Sauda — +45 Min., Peter-Zumthor-Pavillons in Bergschlucht','Jelsa Dorf & Kirche — +15 Min., mittelalterliche Kirche am Fjord']},
-    {name:'Jørpeland / Preikestolen (10.–12. Aug.)', lat:59.0231, lng:6.0674, hotel:'Preikestolen Mountain Lodge', color:'#27AE60', icon:'🏨',
+     sightsOut:['Sandsfossen Lachsleiter — +10 Min., Lachse beim Aufstieg beobachten','Allmannajuvet Sauda — +45 Min., Peter-Zumthor-Pavillons in Bergschlucht','Jelsa Dorf & Kirche — +15 Min., mittelalterliche Kirche am Fjord'],
+     hikes:[
+       {name:'Roaldkvam Aussichtspunkt', diff:'⭐ Leicht', dist:'4 km / 1.5 Std. · Anfahrt: 5 Min.', desc:'Einfache Wanderung mit tollem Blick über den Suldalsfjord und das Tal. Gut ausgeschildert.'},
+       {name:'Suldalsheiane Hochplateau', diff:'⭐⭐ Mittel', dist:'8 km / 3–4 Std. · Anfahrt: 15 Min.', desc:'Wanderung auf das Hochplateau mit Seen und weitem Panorama. Im August meist schneefrei. Gute Schuhe empfohlen.'},
+       {name:'Allmannajuvet via Sauda', diff:'⭐ Leicht', dist:'1 km / 30 Min. · Anfahrt: 45 Min.', desc:'Kurze Schluchtwanderung zu den Peter-Zumthor-Pavillons. Sehr eindrücklich, auch für Nicht-Wanderer geeignet.'},
+     ]},
+    {name:'Jørpeland / Preikestolen (10.–12. Aug.)', lat:59.0231, lng:6.0674, hotel:'Preikestolen Mountain Lodge', color:'#27AE60', icon:'🏠',
      wiki:'Jørpeland',
-     img:'https://upload.wikimedia.org/wikipedia/commons/thumb/4/4e/Preikestolen_2009.jpg/640px-Preikestolen_2009.jpg',
+     photos:['https://upload.wikimedia.org/wikipedia/commons/thumb/4/4e/Preikestolen_2009.jpg/640px-Preikestolen_2009.jpg','https://upload.wikimedia.org/wikipedia/commons/thumb/a/a3/Preikestolen_fjord.jpg/640px-Preikestolen_fjord.jpg','https://upload.wikimedia.org/wikipedia/commons/thumb/d/d5/Lysefjorden.jpg/640px-Lysefjorden.jpg'],
      stadtInfo:'Jørpeland liegt am Høgsfjord und ist Ausgangspunkt für die berühmte Preikestolen-Wanderung. Idyllische Fjordlandschaft im Rogaland.',
-     hotelInfo:'Preikestolen Mountain Lodge — komfortables Hotel/Hostel direkt am Wanderparkplatz, ideal für frühen Start.',
-     hotelImg:'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a3/Preikestolen_fjord.jpg/640px-Preikestolen_fjord.jpg',
+     hotelInfo:'Preikestolen Mountain Lodge — komfortables Hotel/Hostel direkt am Wanderparkplatz, ideal für frühen Start auf den Pulpit Rock.',
      sightsIn:['Jørpeland Sentrum — kleines Hafenstädtchen','Strand og Sjø — Fjordstrand für kurze Pausen','Lokale Supermärkte für Wanderverpflegung'],
-     sightsOut:['Preikestolen (604 m) — 4–5 Std. Wanderung, früh starten!','Lysefjord Bootsfahrt ab Stavanger — Blick von unten auf den Felsen','Kjeragbolten — ganzer Tag, sehr anspruchsvoll (nur für Geübte)']},
-    {name:'Stavanger (12.–13. Aug.)', lat:58.9700, lng:5.7331, hotel:'Comfort Hotel Square', color:'#27AE60', icon:'🏨',
+     sightsOut:['Preikestolen (604 m) — 4–5 Std. Wanderung, früh starten!','Lysefjord Bootsfahrt ab Stavanger — Blick von unten auf den Felsen','Kjeragbolten — ganzer Tag, sehr anspruchsvoll (nur für Geübte)'],
+     hikes:[
+       {name:'Preikestolen (Pulpit Rock)', diff:'⭐⭐ Mittel', dist:'8 km / 4–5 Std. · Anfahrt: 10 Min.', desc:'DER Klassiker — 604 m senkrecht über dem Lysefjord. Parkplatz Preikestolhytta NOK 200. Früh starten (07:00) — im August sehr voll. Wanderschuhe zwingend!'},
+       {name:'Fantastiske Fjordar Trail', diff:'⭐ Leicht', dist:'5 km / 2 Std. · Anfahrt: 0 Min.', desc:'Entspannter Küstenwanderweg direkt ab Hotel mit Fjordblick. Ideal als Aufwärmtour oder Alternative bei schlechtem Wetter.'},
+       {name:'Kjerag (Kjeragbolten)', diff:'⭐⭐⭐ Schwer', dist:'12 km / 6–8 Std. · Anfahrt: 1 Std.', desc:'Sehr anspruchsvoll — der berühmte Stein zwischen zwei Klippen. Nur bei trockenem Wetter. Parkplatz NOK 300. Ganzer Tag einplanen.'},
+     ]},
+    {name:'Stavanger (12.–13. Aug.)', lat:58.9700, lng:5.7331, hotel:'Comfort Hotel Square', color:'#27AE60', icon:'🏠',
      wiki:'Stavanger',
-     img:'https://upload.wikimedia.org/wikipedia/commons/thumb/8/81/Stavanger_harbour.jpg/640px-Stavanger_harbour.jpg',
+     photos:['https://upload.wikimedia.org/wikipedia/commons/thumb/8/81/Stavanger_harbour.jpg/640px-Stavanger_harbour.jpg','https://upload.wikimedia.org/wikipedia/commons/thumb/c/c8/Stavanger_old_town.jpg/640px-Stavanger_old_town.jpg','https://upload.wikimedia.org/wikipedia/commons/thumb/6/6e/Stavanger_domkirke.jpg/640px-Stavanger_domkirke.jpg'],
      stadtInfo:'Stavanger ist die Ölhauptstadt Norwegens und eine lebhafte Hafenstadt mit toller Altstadt, Museen und direktem Zugang zum Lysefjord.',
-     hotelInfo:'Comfort Hotel Square — zentral in der Innenstadt, Fussweg zu allen Sehenswürdigkeiten und zum Hafen.',
-     hotelImg:'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c8/Stavanger_old_town.jpg/640px-Stavanger_old_town.jpg',
+     hotelInfo:'Comfort Hotel Square — zentral in der Innenstadt, zu Fuss zu allen Sehenswürdigkeiten und zum Hafen.',
      sightsIn:['Gamle Stavanger — 173 weisse Holzhäuser, älteste Holzstadt Nordeuropas','Stavanger Domkirke — Kathedrale von 1125, kostenloser Eintritt','Norsk Oljemuseum — interaktives Erdölmuseum, sehr empfohlen'],
-     sightsOut:['Lysefjord Bootsfahrt (Rødne Cruise) — 2–3 Std. ab Stavanger Hafen','Flor & Fjære — tropischer Garten auf Privatinsel, Bootsfahrt 20 Min.','Preikestolen — auch von Stavanger möglich (1h Fahrt nach Jørpeland)']},
-    {name:'Haugesund (13.–14. Aug.)', lat:59.4138, lng:5.2680, hotel:'Quality Hotel Maritim', color:'#27AE60', icon:'🏨',
+     sightsOut:['Lysefjord Bootsfahrt (Rødne Cruise) — 2–3 Std. ab Stavanger Hafen','Flor & Fjære — tropischer Garten auf Privatinsel, Bootsfahrt 20 Min.','Preikestolen — auch von Stavanger möglich (1h Fahrt nach Jørpeland)'],
+     hikes:[
+       {name:'Stige (Stadtberg Stavanger)', diff:'⭐ Leicht', dist:'3 km / 1 Std. · Anfahrt: 10 Min.', desc:'Kurze Wanderung auf den Stadtberg mit Panoramablick über Stavanger und den Hafenfjord. Gut ausgeschildert, für alle geeignet.'},
+       {name:'Preikestolen ab Stavanger', diff:'⭐⭐ Mittel', dist:'8 km / 4–5 Std. · Anfahrt: 1 Std.', desc:'Kombination Fähre + Bus oder Auto nach Jørpeland, dann Aufstieg. Ganzen Tag einplanen. Frühstart empfohlen.'},
+       {name:'Byfjorden Küstenweg', diff:'⭐ Leicht', dist:'6 km / 2 Std. · Anfahrt: 0 Min.', desc:'Flacher Küstenwanderweg entlang des Hafens und der Schären. Ideal für einen entspannten Abend- oder Morgenspaziergang.'},
+     ]},
+    {name:'Haugesund (13.–14. Aug.)', lat:59.4138, lng:5.2680, hotel:'Quality Hotel Maritim', color:'#27AE60', icon:'🏠',
      wiki:'Haugesund',
-     img:'https://upload.wikimedia.org/wikipedia/commons/thumb/3/33/Haugesund_harbour.jpg/640px-Haugesund_harbour.jpg',
+     photos:['https://upload.wikimedia.org/wikipedia/commons/thumb/3/33/Haugesund_harbour.jpg/640px-Haugesund_harbour.jpg','https://upload.wikimedia.org/wikipedia/commons/thumb/d/d6/Haraldshaugen.jpg/640px-Haraldshaugen.jpg','https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/Himak%C3%A5n%C3%A5.jpg/640px-Himak%C3%A5n%C3%A5.jpg'],
      stadtInfo:'Haugesund ist eine lebhafte Küstenstadt, Geburtsort der norwegischen Einigung 872 n.Chr. Bekannt für Hering, Jazz-Festival und Filmfestival.',
-     hotelInfo:'Quality Hotel Maritim — direkt am Hafen, schöne Aussicht, kurze Wege zur Innenstadt.',
-     hotelImg:'https://upload.wikimedia.org/wikipedia/commons/thumb/3/33/Haugesund_harbour.jpg/640px-Haugesund_harbour.jpg',
+     hotelInfo:'Quality Hotel Maritim — direkt am Hafen mit schöner Aussicht, kurze Wege zur Innenstadt.',
      sightsIn:['Haraldshaugen — Nationaldenkmal König Harald (Einigung 872)','Haugesund Sentrum — lebhafte Fussgängerzone','Smedasundet — Kanal mit Cafés, Bars und Restaurants'],
-     sightsOut:['Himakånå — +20 Min. Wanderung mit Trollgesicht-Felsformation','Skudenes — charmantes weisses Fischerdorf, +45 Min. Fahrt','Fähre nach Halhjem (ab Sandvikvåg) — erste Etappe zurück nach Bergen']},
+     sightsOut:['Himakånå — +20 Min. Wanderung mit Trollgesicht-Felsformation','Skudenes — charmantes weisses Fischerdorf, +45 Min. Fahrt','Fähre nach Halhjem (ab Sandvikvåg) — erste Etappe zurück nach Bergen'],
+     hikes:[
+       {name:'Himakånå (Trollgesicht)', diff:'⭐ Leicht', dist:'4 km / 1.5 Std. · Anfahrt: 20 Min.', desc:'Leichte Wanderung zur markanten Trollgesicht-Felsformation mit toller Aussicht über Haugesund und die Küste. Sehr lohnenswert!'},
+       {name:'Vardafjell (Stadtberg)', diff:'⭐ Leicht', dist:'3 km / 1 Std. · Anfahrt: 5 Min.', desc:'Der lokale Hausberg Haugesunds, gut beschildert, toller Blick über die Stadt und die vorgelagerten Inseln.'},
+       {name:'Skudeneshavn Küstenweg', diff:'⭐ Leicht', dist:'5 km / 1.5 Std. · Anfahrt: 45 Min.', desc:'Spaziergang durch das malerische weisse Fischerdorf Skudeneshavn mit alten Holzhäusern und Hafen. Ideal kombiniert mit Kaffeestopp.'},
+     ]},
     {name:'Bergen Flughafen (Ziel · 14. Aug.)', lat:60.2934, lng:5.2181, hotel:'Comfort Hotel Airport · Rückgabe Mietwagen', color:'#E74C3C', icon:'🏁',
      wiki:'Bergen_Airport,_Flesland',
-     img:'https://upload.wikimedia.org/wikipedia/commons/thumb/6/6a/Bryggen_2013.jpg/640px-Bryggen_2013.jpg',
+     photos:['https://upload.wikimedia.org/wikipedia/commons/thumb/6/6a/Bryggen_2013.jpg/640px-Bryggen_2013.jpg','https://upload.wikimedia.org/wikipedia/commons/thumb/0/06/Bergen_fish_market.jpg/640px-Bergen_fish_market.jpg'],
      stadtInfo:'Rückgabe des Mietwagens am Flughafen Bergen Flesland. Die Mietwagenrückgabe ist direkt am Terminal ausgeschildert.',
      hotelInfo:'Comfort Hotel Airport — bei Bedarf letztes Übernachten vor Heimflug.',
-     hotelImg:'https://upload.wikimedia.org/wikipedia/commons/thumb/8/8e/Bergen_airport_Flesland.jpg/640px-Bergen_airport_Flesland.jpg',
      sightsIn:['Mietwagen rechtzeitig zurückgeben (mind. 1h vor Flug)','Flughafen Bergen hat Einkaufsmöglichkeiten und Restaurants'],
-     sightsOut:['Bei Zeitpuffer: Bergen Sentrum nur 30 Min. mit Flughafenbus']},
+     sightsOut:['Bei Zeitpuffer: Bergen Sentrum nur 30 Min. mit Flughafenbus'],
+     hikes:[]},
   ];
 
   // Sightseeing Highlights mit Wiki, Detour und Zeitaufwand
@@ -3986,12 +4009,18 @@ const RAG = (() => {
 
     // Hotel-Stops
     stops.forEach(s=>{
+      const isEnd=s.icon==='🏁';
+      const iconHtml=isEnd
+        ? `<div style="background:${s.color};color:#fff;border-radius:50%;width:38px;height:38px;display:flex;align-items:center;justify-content:center;font-size:20px;box-shadow:0 2px 10px rgba(0,0,0,.5);border:3px solid #fff">🏁</div>`
+        : `<div style="position:relative;width:38px;height:50px">
+            <div style="position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:0;height:0;border-left:11px solid transparent;border-right:11px solid transparent;border-top:14px solid ${s.color}"></div>
+            <div style="position:absolute;top:0;left:0;background:${s.color};border-radius:12px;width:38px;height:38px;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 10px rgba(0,0,0,.5);border:2px solid #fff">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="white"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+            </div>
+          </div>`;
       const icon=L.divIcon({
-        html:`<div style="position:relative;width:34px;height:42px">
-          <div style="position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:0;height:0;border-left:10px solid transparent;border-right:10px solid transparent;border-top:12px solid ${s.color}"></div>
-          <div style="position:absolute;top:0;left:50%;transform:translateX(-50%);background:${s.color};border-radius:10px;width:34px;height:34px;display:flex;align-items:center;justify-content:center;font-size:18px;box-shadow:0 2px 10px rgba(0,0,0,.4);border:2px solid #fff">${s.icon}</div>
-        </div>`,
-        className:'',iconAnchor:[17,42],popupAnchor:[0,-44]
+        html:iconHtml,
+        className:'',iconAnchor:isEnd?[19,19]:[19,50],popupAnchor:[0,isEnd?-22:-52]
       });
       const cityName=s.name.split('(')[0].trim();
       L.marker([s.lat,s.lng],{icon}).addTo(map)
@@ -4066,23 +4095,37 @@ const RAG = (() => {
       body.innerHTML=`<div style="text-align:center;padding:20px;color:#888">Lade Informationen…</div>`;
       panel.style.transform='translateY(0)';
 
-      let imgHtml=s.img?`<img src="${s.img}" style="width:100%;max-height:200px;object-fit:cover;border-radius:12px;margin-bottom:12px" onerror="this.style.display='none'">`:'';
+      // Fotogalerie (bis zu 3 Bilder)
+      const photos=s.photos||[];
+      let photosHtml='';
+      if(photos.length===1){
+        photosHtml=`<img src="${photos[0]}" style="width:100%;max-height:200px;object-fit:cover;border-radius:12px;margin-bottom:14px" onerror="this.style.display='none'">`;
+      } else if(photos.length>1){
+        photosHtml=`<div style="display:flex;gap:6px;margin-bottom:14px;overflow-x:auto">
+          ${photos.map(p=>`<img src="${p}" style="flex:0 0 auto;width:${photos.length===2?'calc(50% - 3px)':'calc(33% - 4px)'};height:130px;object-fit:cover;border-radius:10px" onerror="this.style.display='none'">`).join('')}
+        </div>`;
+      }
 
-      const inList=(s.sightsIn||[]).map(t=>`<li style="margin-bottom:4px">${t}</li>`).join('');
-      const outList=(s.sightsOut||[]).map(t=>`<li style="margin-bottom:4px">${t}</li>`).join('');
+      const inList=(s.sightsIn||[]).map(t=>`<li style="margin-bottom:5px">${t}</li>`).join('');
+      const outList=(s.sightsOut||[]).map(t=>`<li style="margin-bottom:5px">${t}</li>`).join('');
+      const hikeCards=(s.hikes||[]).map(h=>`
+        <div style="background:#fff;border:1px solid #e0e0e0;border-radius:10px;padding:10px 12px;margin-bottom:8px">
+          <div style="font-weight:700;font-size:13px;color:#1a1a1a;margin-bottom:3px">🥾 ${h.name}</div>
+          <div style="font-size:12px;color:#003F87;margin-bottom:4px">${h.diff} &nbsp;·&nbsp; 📍 ${h.dist}</div>
+          <div style="font-size:12px;color:#555;line-height:1.5">${h.desc}</div>
+        </div>`).join('');
 
       body.innerHTML=`
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
-          <h3 style="margin:0;font-size:17px;color:#003F87">${s.icon} ${s.name}</h3>
+          <h3 style="margin:0;font-size:17px;color:#003F87">🏠 ${s.name}</h3>
           <button id="rt-panel-close" style="background:none;border:none;font-size:22px;cursor:pointer;color:#888;padding:4px 8px">✕</button>
         </div>
-        ${imgHtml}
+        ${photosHtml}
         <p style="margin:0 0 14px;font-size:14px;line-height:1.6;color:#333">${s.stadtInfo||''}</p>
 
         <div style="background:#e8f4fd;border-radius:12px;padding:12px 14px;margin-bottom:12px">
-          <div style="font-weight:700;color:#003F87;margin-bottom:6px">🏨 ${s.hotel}</div>
+          <div style="font-weight:700;color:#003F87;margin-bottom:4px">🏨 ${s.hotel}</div>
           <div style="font-size:13px;color:#333">${s.hotelInfo||''}</div>
-          ${s.hotelImg&&s.hotelImg!==s.img?`<img src="${s.hotelImg}" style="width:100%;max-height:160px;object-fit:cover;border-radius:10px;margin-top:10px" onerror="this.style.display='none'">`:''}
         </div>
 
         ${inList?`<div style="background:#f0fff4;border-radius:12px;padding:12px 14px;margin-bottom:12px">
@@ -4093,6 +4136,11 @@ const RAG = (() => {
         ${outList?`<div style="background:#fff8e1;border-radius:12px;padding:12px 14px;margin-bottom:12px">
           <div style="font-weight:700;color:#E67E22;margin-bottom:6px">🗺️ Ausflüge & Umgebung</div>
           <ul style="margin:0;padding-left:18px;font-size:13px;color:#333;line-height:1.7">${outList}</ul>
+        </div>`:''}
+
+        ${hikeCards?`<div style="background:#f3e5f5;border-radius:12px;padding:12px 14px;margin-bottom:12px">
+          <div style="font-weight:700;color:#6A1B9A;margin-bottom:8px">🥾 Wanderungen in der Nähe</div>
+          ${hikeCards}
         </div>`:''}
 
         <button onclick="document.getElementById('rt-detail-panel').style.transform='translateY(100%)'" style="width:100%;padding:12px;background:#003F87;color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer;margin-top:4px">Schliessen</button>`;
@@ -4127,7 +4175,8 @@ const RAG = (() => {
       d.innerHTML='<b style="display:block;margin-bottom:2px">Legende</b>'
         +'<div><span style="display:inline-block;width:20px;height:4px;background:#003F87;margin-right:6px;vertical-align:middle;border-radius:2px"></span>Autostrasse</div>'
         +'<div><span style="display:inline-block;width:20px;height:4px;background:#E67E22;border-top:3px dashed #E67E22;margin-right:6px;vertical-align:middle"></span>Fähre</div>'
-        +'<div>✈️ Start &nbsp; 🏁 Ziel &nbsp; 🏨 Hotel</div>'
+        +'<div><svg width="14" height="14" viewBox="0 0 24 24" fill="#27AE60" style="vertical-align:middle;margin-right:6px"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>Etappenziel / Hotel</div>'
+        +'<div>✈️ Start &nbsp; 🏁 Ziel</div>'
         +'<div><span style="display:inline-block;width:20px;height:20px;background:#fff;border:2px solid #8E44AD;border-radius:50%;text-align:center;line-height:18px;font-size:11px;margin-right:6px;vertical-align:middle">⛰️</span>Highlight</div>'
         +'<div><span style="display:inline-block;width:20px;height:20px;background:#005FA3;border-radius:50%;text-align:center;line-height:20px;font-size:11px;margin-right:6px;vertical-align:middle">⛽</span>Tankstelle</div>';
       return d;
