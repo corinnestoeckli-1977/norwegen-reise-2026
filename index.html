@@ -3918,8 +3918,8 @@ const RAG = (() => {
 
   // Fähren (Routen separat, nicht via OSRM)
   const ferries = [
-    {from:[59.153,5.547], to:[59.153,5.380], label:'⛴️ Mortavika → Arsvågen · ~25 Min. · NOK 178/Auto'},
-    {from:[59.7953,5.3972], to:[59.7953,5.5597], label:'⛴️ Sandvikvåg → Halhjem · ~45 Min. · NOK 176/Auto'},
+    {from:[59.1530,5.5470], to:[59.1530,5.3800], label:'⛴️ Mortavika → Arsvågen · ~25 Min. · NOK 178/Auto'},
+    {from:[59.7830,5.4070], to:[60.1260,5.4380], label:'⛴️ Sandvikvåg → Halhjem · ~45 Min. · NOK 176/Auto'},
   ];
 
   // Strassensegmente pro Etappe (lng,lat für OSRM!)
@@ -3928,8 +3928,12 @@ const RAG = (() => {
     {label:'Rosendal → Sand',              ferry:0,  wp:[[6.0138,59.9872],[6.2523,59.4882]]},
     {label:'Sand → Jørpeland',             ferry:0,  wp:[[6.2523,59.4882],[6.0674,59.0231]]},
     {label:'Jørpeland → Stavanger',        ferry:0,  wp:[[6.0674,59.0231],[5.7331,58.9700]]},
-    {label:'Stavanger → Haugesund',        ferry:25, wp:[[5.7331,58.9700],[5.547,59.153],[5.380,59.153],[5.2680,59.4138]]},
-    {label:'Haugesund → Flughafen Bergen', ferry:45, wp:[[5.2680,59.4138],[5.3972,59.7953],[5.5597,59.7953],[5.2181,60.2934]]},
+    // Stavanger→Haugesund: Fahrt bis Mortavika, dann Fähre (separat), dann Arsvågen→Haugesund
+    {label:'Stavanger → Mortavika',        ferry:0,  wp:[[5.7331,58.9700],[5.5470,59.1530]]},
+    {label:'Arsvågen → Haugesund',         ferry:0,  wp:[[5.3800,59.1530],[5.2680,59.4138]]},
+    // Haugesund→Bergen: Fahrt bis Sandvikvåg, dann Fähre (separat), dann Halhjem→Bergen
+    {label:'Haugesund → Sandvikvåg',       ferry:0,  wp:[[5.2680,59.4138],[5.4070,59.7830]]},
+    {label:'Halhjem → Flughafen Bergen',   ferry:0,  wp:[[5.4380,60.1260],[5.2181,60.2934]]},
   ];
 
   function fmtMins(totalMins){
