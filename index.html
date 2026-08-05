@@ -2144,6 +2144,7 @@ nav a:hover{color:#fff;border-bottom-color:var(--nr);background:rgba(255,255,255
 </div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://unpkg.com/leaflet-arrowheads@1.4.0/src/leaflet-arrowheads.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
 <script>
@@ -3978,7 +3979,7 @@ const RAG = (() => {
       try{
         const res=await fetchRoute(leg.wp);
         if(res){
-          L.polyline(res.pts,{color:'#003F87',weight:5,opacity:0.9}).addTo(map);
+          L.polyline(res.pts,{color:'#003F87',weight:5,opacity:0.9}).arrowheads({size:'12px',frequency:'150px',fill:true,color:'#003F87'}).addTo(map);
           allPts.push(...res.pts);
           const mid=res.pts[Math.floor(res.pts.length/2)];
           const driveMin=Math.round(res.distKm>0?res.pts.length>0?parseInt(res.timeStr)*60||0:0:0);
