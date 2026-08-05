@@ -4095,14 +4095,28 @@ const RAG = (() => {
       body.innerHTML=`<div style="text-align:center;padding:20px;color:#888">Lade Informationen…</div>`;
       panel.style.transform='translateY(0)';
 
-      // Fotogalerie (bis zu 3 Bilder)
-      const photos=s.photos||[];
+      // Erstes Foto via Wikipedia (zuverlässig), Rest aus photos[]
+      let wikiThumb='';
+      if(s.wiki){
+        try{
+          const r=await fetch('https://en.wikipedia.org/api/rest_v1/page/summary/'+encodeURIComponent(s.wiki));
+          if(r.ok){ const d=await r.json(); if(d.thumbnail?.source) wikiThumb=d.thumbnail.source.replace(/\/\d+px-/,'/640px-'); }
+        }catch(e){}
+        if(!wikiThumb){
+          try{
+            const r=await fetch('https://no.wikipedia.org/api/rest_v1/page/summary/'+encodeURIComponent(s.wiki));
+            if(r.ok){ const d=await r.json(); if(d.thumbnail?.source) wikiThumb=d.thumbnail.source.replace(/\/\d+px-/,'/640px-'); }
+          }catch(e){}
+        }
+      }
+      // Alle verfügbaren Fotos zusammenstellen (Wikipedia zuerst)
+      const allPhotos=[...new Set([wikiThumb,...(s.photos||[])].filter(Boolean))].slice(0,3);
       let photosHtml='';
-      if(photos.length===1){
-        photosHtml=`<img src="${photos[0]}" style="width:100%;max-height:200px;object-fit:cover;border-radius:12px;margin-bottom:14px" onerror="this.style.display='none'">`;
-      } else if(photos.length>1){
+      if(allPhotos.length===1){
+        photosHtml=`<img src="${allPhotos[0]}" style="width:100%;max-height:210px;object-fit:cover;border-radius:12px;margin-bottom:14px" onerror="this.style.display='none'">`;
+      } else if(allPhotos.length>1){
         photosHtml=`<div style="display:flex;gap:6px;margin-bottom:14px;overflow-x:auto">
-          ${photos.map(p=>`<img src="${p}" style="flex:0 0 auto;width:${photos.length===2?'calc(50% - 3px)':'calc(33% - 4px)'};height:130px;object-fit:cover;border-radius:10px" onerror="this.style.display='none'">`).join('')}
+          ${allPhotos.map(p=>`<img src="${p}" style="flex:0 0 auto;width:${allPhotos.length===2?'calc(50% - 3px)':'calc(33% - 4px)'};height:140px;object-fit:cover;border-radius:10px" onerror="this.style.display='none'">`).join('')}
         </div>`;
       }
 
