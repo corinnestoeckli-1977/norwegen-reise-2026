@@ -3919,8 +3919,12 @@ const RAG = (() => {
 
   // Fähren (Routen separat, nicht via OSRM)
   const ferries = [
-    {from:[59.1530,5.5470], to:[59.1530,5.3800], label:'⛴️ Mortavika → Arsvågen · ~25 Min. · NOK 178/Auto'},
-    {from:[59.7830,5.4070], to:[60.1260,5.4380], label:'⛴️ Sandvikvåg → Halhjem · ~45 Min. · NOK 176/Auto'},
+    {label:'⛴️ Mortavika → Arsvågen · ~25 Min. · NOK 178/Auto',
+     // Durchfahrt Boknafjord — von Mortavika (Ryfylke-Seite) westwärts nach Arsvågen
+     pts:[[59.1530,5.5470],[59.1480,5.5100],[59.1420,5.4700],[59.1400,5.4300],[59.1410,5.3990],[59.1530,5.3800]]},
+    {label:'⛴️ Sandvikvåg → Halhjem · ~45 Min. · NOK 176/Auto',
+     // Durchfahrt Bjørnafjorden — von Sandvikvåg (Stord) nordwärts durch den Fjord nach Halhjem
+     pts:[[59.7830,5.4070],[59.8200,5.4100],[59.8600,5.4150],[59.9000,5.4200],[59.9500,5.4250],[60.0000,5.4280],[60.0600,5.4320],[60.1000,5.4360],[60.1260,5.4380]]},
   ];
 
   // Strassensegmente pro Etappe (lng,lat für OSRM!)
@@ -4001,16 +4005,16 @@ const RAG = (() => {
 
     // Fähren (orange gestrichelt)
     ferries.forEach(f=>{
-      const pts=[f.from,f.to];
+      const pts=f.pts;
       L.polyline(pts,{color:'#E67E22',weight:6,opacity:1,dashArray:'12,7'}).addTo(map);
-      const mid=[(f.from[0]+f.to[0])/2,(f.from[1]+f.to[1])/2];
+      const mid=pts[Math.floor(pts.length/2)];
       const fIcon=L.divIcon({
         html:`<div style="background:#fff;color:#111;border-radius:20px;padding:4px 10px;font-size:11px;font-weight:700;white-space:nowrap;box-shadow:0 2px 8px rgba(0,0,0,.25);border:1.5px solid #E67E22">${f.label}</div>`,
         className:'',iconAnchor:[60,14],popupAnchor:[0,-16]
       });
       L.marker(mid,{icon:fIcon}).addTo(map)
         .bindPopup(`<strong>${f.label}</strong><br><small>Keine Voranmeldung nötig · Zahlung per Karte am Terminal</small>`);
-      allPts.push(...pts);
+      allPts.push(...f.pts);
     });
 
     // Hotel-Stops
