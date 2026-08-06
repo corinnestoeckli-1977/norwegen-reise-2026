@@ -2144,7 +2144,6 @@ nav a:hover{color:#fff;border-bottom-color:var(--nr);background:rgba(255,255,255
 </div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-<script src="https://unpkg.com/leaflet-arrowheads@1.4.0/src/leaflet-arrowheads.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
 <script>
@@ -3102,9 +3101,9 @@ function showToast(msg){const t=document.getElementById('toast');t.textContent=m
           <button class="tr-tab-btn" onclick="TR.switchTab('karte',this)">🗺️ Karte</button>
           <button class="tr-tab-btn" onclick="TR.switchTab('notizen',this)">📝 Notizen</button>
         </div>
-        <div class="tr-tab-content active" id="trTab-wanderung"></div>
+        <div class="tr-tab-content active" id="trTab-wanderung"><div id="tr-minimap" style="height:220px;border-radius:10px;overflow:hidden;margin-bottom:14px;border:1.5px solid #e2e8f0;box-shadow:0 2px 8px rgba(0,63,135,.07)"></div></div>
         <div class="tr-tab-content" id="trTab-anreise"></div>
-        <div class="tr-tab-content" id="trTab-karte"><div id="tr-minimap"></div><div id="tr-maps-links"></div></div>
+        <div class="tr-tab-content" id="trTab-karte"><div id="tr-maps-links"></div></div>
         <div class="tr-tab-content" id="trTab-notizen"></div>
       </div>
       <div class="tr-panel-actions">
@@ -3175,7 +3174,7 @@ function showToast(msg){const t=document.getElementById('toast');t.textContent=m
 
 <script>
 const TR = (() => {
-  const SK = 'norwegen_trails_v6';
+  const SK = 'norwegen_trails_v7';
   let trails = JSON.parse(localStorage.getItem(SK) || 'null');
   let currentId = null, editId = null, trMap = null;
 
@@ -3337,7 +3336,9 @@ g.coordSummit="68.118575,13.689175";
     document.getElementById('trDDate').textContent=t.date?`📅 ${fd(t.date)}`:'';
     document.getElementById('trDTitle').textContent=t.name;
     document.getElementById('trDBadges').innerHTML=`${t.difficulty?`<span class="tr-badge ${dc(t.difficulty)}">${t.difficulty}</span>`:''}<span class="tr-badge ${sc(t.status)}">${t.status}</span>`;
-    document.getElementById('trTab-wanderung').innerHTML=`\n<div class="tr-info-grid">
+    document.getElementById('trTab-wanderung').innerHTML=`
+      <div id="tr-minimap" style="height:220px;border-radius:10px;overflow:hidden;margin-bottom:14px;border:1.5px solid #e2e8f0;box-shadow:0 2px 8px rgba(0,63,135,.07)"></div>
+      <div class="tr-info-grid">
         ${t.distance?`<div class="tr-info-item"><div class="tr-info-label">📏 Distanz</div><div class="tr-info-val">${t.distance} km</div></div>`:''}
         ${t.elevation?`<div class="tr-info-item"><div class="tr-info-label">⬆️ Höhenmeter</div><div class="tr-info-val">${t.elevation} m</div></div>`:''}
         ${t.duration?`<div class="tr-info-item"><div class="tr-info-label">⏱️ Dauer</div><div class="tr-info-val">${t.duration}</div></div>`:''}
@@ -3345,7 +3346,7 @@ g.coordSummit="68.118575,13.689175";
       </div>
       ${t.description?`<div class="tr-sec-title">Beschreibung</div><div class="tr-desc">${t.description}</div>`:''}
       ${t.stages?`<div class="tr-route"><div class="tr-route-title">🗺️ Routenbeschreibung</div>${t.stages.map((s,i,a)=>`<div class="tr-stage"><div class="tr-stage-dot" style="background:${s.color||'#e2e8f0'}">${s.icon||'📍'}</div><div class="tr-stage-body"><div class="tr-stage-meta">${s.meta||''}</div><div class="tr-stage-label">${s.label}</div><div class="tr-stage-text">${s.text}</div></div></div>${i<a.length-1?'<div class="tr-stage-connector"></div>':''}`).join('')}</div>`:''}
-      ${t.url?`<div class="tr-sec-title" style="margin-top:14px">🔗 Quelle</div><a href="${t.url}" target="_blank" style="color:#2b6cb0;font-size:.82rem;word-break:break-all">${t.url}</a>`:''}`;
+      ${t.url?`<div style="margin-top:14px"><a href="${t.url}" target="_blank" style="display:inline-block;background:#276749;color:#fff;font-size:13px;font-weight:700;padding:9px 18px;border-radius:20px;text-decoration:none">🌐 Route auf AllTrails / Komoot ansehen ↗</a></div>`:''}`;
     const hasT=t.depFrom||t.depTo||t.depDetails;
     document.getElementById('trTab-anreise').innerHTML=hasT?`\n<div class="tr-transport-sec"><h4>🚌 Hin- und Rückfahrt</h4><div class="tr-timeline">
         ${t.depFrom?`<div class="tr-tl-item"><div class="tr-tl-dot g"></div><div class="tr-tl-time">Abfahrt</div><div class="tr-tl-title">${t.depFrom}</div></div>`:''}
@@ -3381,7 +3382,7 @@ g.coordSummit="68.118575,13.689175";
     document.querySelectorAll('.tr-tab-btn').forEach(b=>b.classList.remove('active'));
     document.querySelectorAll('.tr-tab-content').forEach(c=>c.classList.remove('active'));
     btn.classList.add('active'); document.getElementById('trTab-'+name).classList.add('active');
-    if(name==='karte'&&trMap){ setTimeout(()=>trMap.invalidateSize(),50); }
+    if((name==='karte'||name==='wanderung')&&trMap){ setTimeout(()=>trMap.invalidateSize(),50); }
   }
   function openForm(id){
     editId=id||null;
@@ -3722,34 +3723,34 @@ const RAG = (() => {
      sightsOut:['Hardangerfjord — ca. 1.5h Fahrt, einer der schönsten Fjorde','Lysøen — Insel mit historischer Villa von Ole Bull','Sognefjord — längster Fjord der Welt, ca. 2h Fahrt'],
      hikes:[
        {name:'Fløyfjellet via Fløibanen', diff:'⭐ Leicht', dist:'2 km / 1 Std.', desc:'Mit der Standseilbahn hoch, kurze Wanderung auf dem Gipfel. Toller Blick über Bergen.', link:'https://ut.no/turforslag/1112428870/floyfjellet-fra-floibanen'},
-       {name:'Ulriken (643 m)', diff:'⭐⭐⭐ Mittel–Schwer', dist:'8 km / 3–4 Std.', desc:'Höchster der 7 Berge Bergensaufstieg. Kondition nötig. Seilbahn als Alternative verfügbar.', link:'https://ut.no/search?q=Ulriken'},
+       {name:'Ulriken (643 m)', diff:'⭐⭐⭐ Mittel–Schwer', dist:'8 km / 3–4 Std.', desc:'Höchster der 7 Berge Bergensaufstieg. Kondition nötig. Seilbahn als Alternative verfügbar.', link:'https://ut.no/turforslag/116199/montana-ulriken-kammen'},
      ]},
     {name:'Rosendal (7.–9. Aug.)', lat:59.9872, lng:6.0138, hotel:'Rosendal Fjordhotel', color:'#27AE60', icon:'🏠',
-     wiki:'Rosendal',
+     wiki:'Baroniet_Rosendal', hotelWiki:'Hardangerfjord', booking:'Rosendal+Fjordhotel',
      photos:['https://upload.wikimedia.org/wikipedia/commons/thumb/2/2f/Baroniet_Rosendal.jpg/640px-Baroniet_Rosendal.jpg','https://upload.wikimedia.org/wikipedia/commons/thumb/e/e5/Rosendal_Norway.jpg/640px-Rosendal_Norway.jpg','https://upload.wikimedia.org/wikipedia/commons/thumb/8/8e/Folgefonna_nasjonalpark.jpg/640px-Folgefonna_nasjonalpark.jpg'],
      stadtInfo:'Rosendal ist ein idyllisches Dorf im Hardangerfjord, bekannt für Norwegens einziges Baronie und atemberaubende Fjord- und Gletscherkulisse.',
      hotelInfo:'Rosendal Fjordhotel — charmantes Hotel direkt am Fjord mit Blick auf Folgefonna-Gletscher und Baroniet.',
      sightsIn:['Baroniet Rosendal — Schloss, Rosengarten, Museum (1h–2h)','Fjordblick-Spaziergang entlang des Hafens','Lokale Obstgärten — Hardanger ist berühmt für Äpfel und Kirschen'],
      sightsOut:['Folgefonna Gletscher — +30 Min. Fahrt, Gletscherwanderung','Langfossen Wasserfall — auf dem Weg, direkt von der E39 sichtbar','Åkrafjorden Aussichtspunkt — wilde Fjordlandschaft'],
      hikes:[
-       {name:'Melderskin (1426 m)', diff:'⭐⭐⭐ Schwer', dist:'12 km / 5–6 Std. · Anfahrt: 0 Min.', desc:'Anspruchsvolle Tour auf den höchsten Gipfel der Region mit fantastischem Blick auf Gletscher und Hardangerfjord. Nur bei gutem Wetter.', link:'https://www.ut.no/search?q=Melderskin'},
+       {name:'Melderskin (1426 m)', diff:'⭐⭐⭐ Schwer', dist:'12 km / 5–6 Std. · Anfahrt: 0 Min.', desc:'Anspruchsvolle Tour auf den höchsten Gipfel der Region mit fantastischem Blick auf Gletscher und Hardangerfjord. Nur bei gutem Wetter.', link:'https://ut.no/turforslag/1111148/melderskin'},
        {name:'Baronihagen Spaziergang', diff:'⭐ Leicht', dist:'2 km / 45 Min. · Anfahrt: 0 Min.', desc:'Entspannter Rundweg durch den Schlosspark und den historischen Rosengarten. Ideal für alle Altersgruppen.', link:'https://www.ut.no/search?q=Baroniet+Rosendal'},
        {name:'Folgefonna Gletscher (geführt)', diff:'⭐⭐ Mittel', dist:'3 km / 2 Std. · Anfahrt: 30 Min.', desc:'Geführte Gletschertour ab Folgefonnsenteret. Festes Schuhwerk und warme Jacke nötig. Buchung vor Ort.', link:'https://www.ut.no/search?q=Folgefonna'},
      ]},
     {name:'Sand / Ryfylke (9.–10. Aug.)', lat:59.4882, lng:6.2523, hotel:'Ryfylke Fjordhotell', color:'#27AE60', icon:'🏠',
-     wiki:'Sand,_Rogaland',
+     wiki:'Sand,_Rogaland', hotelWiki:'Suldalsvatnet', booking:'Ryfylke+Fjordhotell',
      photos:['https://upload.wikimedia.org/wikipedia/commons/thumb/7/7e/Sand_i_Ryfylke.jpg/640px-Sand_i_Ryfylke.jpg','https://upload.wikimedia.org/wikipedia/commons/thumb/5/5d/Suldalsvatnet.jpg/640px-Suldalsvatnet.jpg','https://upload.wikimedia.org/wikipedia/commons/thumb/b/b6/Lakseparken_i_Sand.jpg/640px-Lakseparken_i_Sand.jpg'],
      stadtInfo:'Sand ist ein kleines Dorf im Suldalsfjord (Ryfylke). Die Region ist bekannt für Lachsreichtum, Wasserfälle und wilde Berglandschaft.',
      hotelInfo:'Ryfylke Fjordhotell — ruhiges Hotel direkt am Fjord, mit wunderbarem Ausblick auf Suldalsvatnet.',
      sightsIn:['Lachsbrunnen Sand — historisches Fischdorf-Museum','Fjordspaziergang Suldalsfjord','Lokale Cafés und Fischrestaurants'],
      sightsOut:['Sandsfossen Lachsleiter — +10 Min., Lachse beim Aufstieg beobachten','Allmannajuvet Sauda — +45 Min., Peter-Zumthor-Pavillons in Bergschlucht','Jelsa Dorf & Kirche — +15 Min., mittelalterliche Kirche am Fjord'],
      hikes:[
-       {name:'Roaldkvam Aussichtspunkt', diff:'⭐ Leicht', dist:'4 km / 1.5 Std. · Anfahrt: 5 Min.', desc:'Einfache Wanderung mit tollem Blick über den Suldalsfjord und das Tal. Gut ausgeschildert.', link:'https://www.ut.no/search?q=Roaldkvam'},
+       {name:'Roaldkvam Aussichtspunkt', diff:'⭐ Leicht', dist:'4 km / 1.5 Std. · Anfahrt: 5 Min.', desc:'Einfache Wanderung mit tollem Blick über den Suldalsfjord und das Tal. Gut ausgeschildert.', link:'https://ut.no/turforslag/114544/roaldkvamsnuten-755-moh'},
        {name:'Suldalsheiane Hochplateau', diff:'⭐⭐ Mittel', dist:'8 km / 3–4 Std. · Anfahrt: 15 Min.', desc:'Wanderung auf das Hochplateau mit Seen und weitem Panorama. Im August meist schneefrei. Gute Schuhe empfohlen.', link:'https://www.ut.no/search?q=Suldalsheiane'},
        {name:'Allmannajuvet via Sauda', diff:'⭐ Leicht', dist:'1 km / 30 Min. · Anfahrt: 45 Min.', desc:'Kurze Schluchtwanderung zu den Peter-Zumthor-Pavillons. Sehr eindrücklich, auch für Nicht-Wanderer geeignet.', link:'https://www.ut.no/search?q=Allmannajuvet'},
      ]},
     {name:'Jørpeland / Preikestolen (10.–12. Aug.)', lat:59.0231, lng:6.0674, hotel:'Preikestolen Mountain Lodge', color:'#27AE60', icon:'🏠',
-     wiki:'Jørpeland',
+     wiki:'Jørpeland', hotelWiki:'Preikestolen', booking:'Preikestolen+Mountain+Lodge',
      photos:['https://upload.wikimedia.org/wikipedia/commons/thumb/4/4e/Preikestolen_2009.jpg/640px-Preikestolen_2009.jpg','https://upload.wikimedia.org/wikipedia/commons/thumb/a/a3/Preikestolen_fjord.jpg/640px-Preikestolen_fjord.jpg','https://upload.wikimedia.org/wikipedia/commons/thumb/d/d5/Lysefjorden.jpg/640px-Lysefjorden.jpg'],
      stadtInfo:'Jørpeland liegt am Høgsfjord und ist Ausgangspunkt für die berühmte Preikestolen-Wanderung. Idyllische Fjordlandschaft im Rogaland.',
      hotelInfo:'Preikestolen Mountain Lodge — komfortables Hotel/Hostel direkt am Wanderparkplatz, ideal für frühen Start auf den Pulpit Rock.',
@@ -3761,7 +3762,7 @@ const RAG = (() => {
        {name:'Kjerag (Kjeragbolten)', diff:'⭐⭐⭐ Schwer', dist:'12 km / 6–8 Std. · Anfahrt: 1 Std.', desc:'Sehr anspruchsvoll — der berühmte Stein zwischen zwei Klippen. Nur bei trockenem Wetter. Parkplatz NOK 300. Ganzer Tag einplanen.', link:'https://ut.no/turforslag/1112397185/kjerag'},
      ]},
     {name:'Stavanger (12.–13. Aug.)', lat:58.9700, lng:5.7331, hotel:'Comfort Hotel Square', color:'#27AE60', icon:'🏠',
-     wiki:'Stavanger',
+     wiki:'Stavanger', hotelWiki:'Stavanger_Cathedral', booking:'Comfort+Hotel+Square+Stavanger',
      photos:['https://upload.wikimedia.org/wikipedia/commons/thumb/8/81/Stavanger_harbour.jpg/640px-Stavanger_harbour.jpg','https://upload.wikimedia.org/wikipedia/commons/thumb/c/c8/Stavanger_old_town.jpg/640px-Stavanger_old_town.jpg','https://upload.wikimedia.org/wikipedia/commons/thumb/6/6e/Stavanger_domkirke.jpg/640px-Stavanger_domkirke.jpg'],
      stadtInfo:'Stavanger ist die Ölhauptstadt Norwegens und eine lebhafte Hafenstadt mit toller Altstadt, Museen und direktem Zugang zum Lysefjord.',
      hotelInfo:'Comfort Hotel Square — zentral in der Innenstadt, zu Fuss zu allen Sehenswürdigkeiten und zum Hafen.',
@@ -3773,15 +3774,15 @@ const RAG = (() => {
        {name:'Byfjorden Küstenweg', diff:'⭐ Leicht', dist:'6 km / 2 Std. · Anfahrt: 0 Min.', desc:'Flacher Küstenwanderweg entlang des Hafens und der Schären. Ideal für einen entspannten Abend- oder Morgenspaziergang.', link:'https://www.ut.no/search?q=Byfjorden+Stavanger'},
      ]},
     {name:'Haugesund (13.–14. Aug.)', lat:59.4138, lng:5.2680, hotel:'Quality Hotel Maritim', color:'#27AE60', icon:'🏠',
-     wiki:'Haugesund',
+     wiki:'Haugesund', hotelWiki:'Haraldshaugen', booking:'Quality+Hotel+Maritim+Haugesund',
      photos:['https://upload.wikimedia.org/wikipedia/commons/thumb/3/33/Haugesund_harbour.jpg/640px-Haugesund_harbour.jpg','https://upload.wikimedia.org/wikipedia/commons/thumb/d/d6/Haraldshaugen.jpg/640px-Haraldshaugen.jpg','https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/Himak%C3%A5n%C3%A5.jpg/640px-Himak%C3%A5n%C3%A5.jpg'],
      stadtInfo:'Haugesund ist eine lebhafte Küstenstadt, Geburtsort der norwegischen Einigung 872 n.Chr. Bekannt für Hering, Jazz-Festival und Filmfestival.',
      hotelInfo:'Quality Hotel Maritim — direkt am Hafen mit schöner Aussicht, kurze Wege zur Innenstadt.',
      sightsIn:['Haraldshaugen — Nationaldenkmal König Harald (Einigung 872)','Haugesund Sentrum — lebhafte Fussgängerzone','Smedasundet — Kanal mit Cafés, Bars und Restaurants'],
      sightsOut:['Himakånå — +20 Min. Wanderung mit Trollgesicht-Felsformation','Skudenes — charmantes weisses Fischerdorf, +45 Min. Fahrt','Fähre nach Halhjem (ab Sandvikvåg) — erste Etappe zurück nach Bergen'],
      hikes:[
-       {name:'Himakånå (Trollgesicht)', diff:'⭐ Leicht', dist:'4 km / 1.5 Std. · Anfahrt: 20 Min.', desc:'Leichte Wanderung zur markanten Trollgesicht-Felsformation mit toller Aussicht über Haugesund und die Küste. Sehr lohnenswert!', link:'https://www.ut.no/search?q=Himak%C3%A5n%C3%A5'},
-       {name:'Vardafjell (Stadtberg)', diff:'⭐ Leicht', dist:'3 km / 1 Std. · Anfahrt: 5 Min.', desc:'Der lokale Hausberg Haugesunds, gut beschildert, toller Blick über die Stadt und die vorgelagerten Inseln.', link:'https://www.ut.no/search?q=Vardafjell'},
+       {name:'Himakånå (Trollgesicht)', diff:'⭐ Leicht', dist:'4 km / 1.5 Std. · Anfahrt: 20 Min.', desc:'Leichte Wanderung zur markanten Trollgesicht-Felsformation mit toller Aussicht über Haugesund und die Küste. Sehr lohnenswert!', link:'https://ut.no/turforslag/1113555/himakana'},
+       {name:'Vardafjell (Stadtberg)', diff:'⭐ Leicht', dist:'3 km / 1 Std. · Anfahrt: 5 Min.', desc:'Der lokale Hausberg Haugesunds, gut beschildert, toller Blick über die Stadt und die vorgelagerten Inseln.', link:'https://ut.no/turforslag/117323/vardafjellet-377-moh'},
        {name:'Skudeneshavn Küstenweg', diff:'⭐ Leicht', dist:'5 km / 1.5 Std. · Anfahrt: 45 Min.', desc:'Spaziergang durch das malerische weisse Fischerdorf Skudeneshavn mit alten Holzhäusern und Hafen. Ideal kombiniert mit Kaffeestopp.', link:'https://www.ut.no/search?q=Skudeneshavn'},
      ]},
     {name:'Bergen Flughafen (Ziel · 14. Aug.)', lat:60.2934, lng:5.2181, hotel:'Comfort Hotel Airport · Rückgabe Mietwagen', color:'#E74C3C', icon:'🏁',
@@ -3920,11 +3921,11 @@ const RAG = (() => {
   // Fähren (Routen separat, nicht via OSRM)
   const ferries = [
     {label:'⛴️ Mortavika → Arsvågen · ~25 Min. · NOK 178/Auto',
-     // Durchfahrt Boknafjord — von Mortavika (Ryfylke-Seite) westwärts nach Arsvågen
-     pts:[[59.1530,5.5470],[59.1480,5.5100],[59.1420,5.4700],[59.1400,5.4300],[59.1410,5.3990],[59.1530,5.3800]]},
+     // Boknafjord: leicht geschwungen von Mortavika westwärts nach Arsvågen
+     pts:[[59.1530,5.5470],[59.1350,5.5150],[59.1200,5.4850],[59.1080,5.4500],[59.1150,5.4150],[59.1300,5.3950],[59.1530,5.3800]]},
     {label:'⛴️ Sandvikvåg → Halhjem · ~45 Min. · NOK 176/Auto',
-     // Durchfahrt Bjørnafjorden — von Sandvikvåg (Stord) nordwärts durch den Fjord nach Halhjem
-     pts:[[59.7830,5.4070],[59.8200,5.4100],[59.8600,5.4150],[59.9000,5.4200],[59.9500,5.4250],[60.0000,5.4280],[60.0600,5.4320],[60.1000,5.4360],[60.1260,5.4380]]},
+     // Bjørnafjorden: realistischer Verlauf durch den Hauptkanal westlich von Huglo
+     pts:[[59.9681,5.3352],[59.9780,5.3150],[60.0050,5.3050],[60.0400,5.3250],[60.0700,5.3700],[60.0950,5.4050],[60.1050,5.4300],[60.1100,5.4550],[60.1200,5.4480],[60.1228,5.4390]]},
   ];
 
   // Strassensegmente pro Etappe (lng,lat für OSRM!)
@@ -3937,7 +3938,7 @@ const RAG = (() => {
     {label:'Stavanger → Mortavika',        ferry:0,  wp:[[5.7331,58.9700],[5.5470,59.1530]]},
     {label:'Arsvågen → Haugesund',         ferry:0,  wp:[[5.3800,59.1530],[5.2680,59.4138]]},
     // Haugesund→Bergen: Fahrt bis Sandvikvåg, dann Fähre (separat), dann Halhjem→Bergen
-    {label:'Haugesund → Sandvikvåg',       ferry:0,  wp:[[5.2680,59.4138],[5.4070,59.7830]]},
+    {label:'Haugesund → Sandvikvåg',       ferry:0,  wp:[[5.2680,59.4138],[5.3352,59.9681]]},
     {label:'Halhjem → Flughafen Bergen',   ferry:0,  wp:[[5.4380,60.1260],[5.2181,60.2934]]},
   ];
 
@@ -3969,6 +3970,7 @@ const RAG = (() => {
     if(!el||el._rtInit) return;
     el._rtInit=true;
     const map=L.map('rt-map').setView([59.5,5.7],7);
+    window.rtMap=map;
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'© OpenStreetMap',maxZoom:14}).addTo(map);
 
     // Ladeanzeige
@@ -3983,7 +3985,16 @@ const RAG = (() => {
       try{
         const res=await fetchRoute(leg.wp);
         if(res){
-          L.polyline(res.pts,{color:'#003F87',weight:5,opacity:0.9}).arrowheads({size:'12px',frequency:'150px',fill:true,color:'#003F87'}).addTo(map);
+          const line=L.polyline(res.pts,{color:'#003F87',weight:5,opacity:0.9}).addTo(map);
+          // Richtungspfeil: kleines Dreieck bei 60% der Strecke
+          const ai=Math.floor(res.pts.length*0.6);
+          const ai2=Math.min(ai+1,res.pts.length-1);
+          if(ai!==ai2){
+            const p1=res.pts[ai],p2=res.pts[ai2];
+            const angle=Math.atan2(p2[1]-p1[1],p2[0]-p1[0])*180/Math.PI;
+            const arrowIcon=L.divIcon({html:`<div style="width:0;height:0;border-left:7px solid transparent;border-right:7px solid transparent;border-bottom:14px solid #003F87;transform:rotate(${angle}deg);transform-origin:center"></div>`,className:'',iconAnchor:[7,7]});
+            L.marker(res.pts[ai],{icon:arrowIcon,interactive:false}).addTo(map);
+          }
           allPts.push(...res.pts);
           const mid=res.pts[Math.floor(res.pts.length/2)];
           const driveMin=Math.round(res.distKm>0?res.pts.length>0?parseInt(res.timeStr)*60||0:0:0);
@@ -4015,6 +4026,24 @@ const RAG = (() => {
       L.marker(mid,{icon:fIcon}).addTo(map)
         .bindPopup(`<strong>${f.label}</strong><br><small>Keine Voranmeldung nötig · Zahlung per Karte am Terminal</small>`);
       allPts.push(...f.pts);
+    });
+
+    // Fjord-Beschriftungen
+    const fjordLabels=[
+      {name:'Hardangerfjord', lat:60.10, lng:6.20},
+      {name:'Bjørnafjorden',  lat:59.95, lng:5.36},
+      {name:'Boknafjord',     lat:59.28, lng:5.65},
+      {name:'Lysefjord',      lat:59.00, lng:6.25},
+      {name:'Ølensfjord',     lat:59.92, lng:5.87},
+    ];
+    fjordLabels.forEach(f=>{
+      L.marker([f.lat,f.lng],{
+        icon:L.divIcon({
+          html:`<div style="color:#1a5f8a;font-size:12px;font-weight:700;font-style:italic;white-space:nowrap;text-shadow:1px 1px 2px rgba(255,255,255,0.9),-1px -1px 2px rgba(255,255,255,0.9)">${f.name}</div>`,
+          className:'',iconAnchor:[0,8]
+        }),
+        interactive:false
+      }).addTo(map);
     });
 
     // Hotel-Stops
@@ -4054,39 +4083,88 @@ const RAG = (() => {
 
     function closePanel(){ panel.style.transform='translateY(100%)'; }
 
+    // Gemeinsame Hilfsfunktionen für openHighlight + openStop
+    async function fetchWikiPhotos(wiki, lang='en'){
+      try{
+        const badRe=/flag|icon|svg|gif|logo|coat|locator|blank|wikimedia|commons\.svg|map|chart|vapen|våpen|wappen/i;
+        const r1=await fetch(`https://${lang}.wikipedia.org/w/api.php?action=query&titles=${encodeURIComponent(wiki)}&prop=images&imlimit=20&format=json&origin=*`);
+        if(!r1.ok) return [];
+        const d1=await r1.json();
+        const pages=d1.query?.pages||{};
+        const pid=Object.keys(pages)[0];
+        if(pid==='-1') return [];
+        const files=(pages[pid].images||[]).filter(i=>!badRe.test(i.title)).map(i=>i.title).slice(0,6);
+        if(!files.length) return [];
+        const r2=await fetch(`https://${lang}.wikipedia.org/w/api.php?action=query&titles=${encodeURIComponent(files.join('|'))}&prop=imageinfo&iiprop=url&iiurlwidth=640&format=json&origin=*`);
+        if(!r2.ok) return [];
+        const d2=await r2.json();
+        return Object.values(d2.query?.pages||{}).map(p=>p.imageinfo?.[0]?.thumburl).filter(Boolean).slice(0,3);
+      }catch(e){ return []; }
+    }
+    async function getPhotos(wiki){
+      let photos=await fetchWikiPhotos(wiki,'en');
+      if(!photos.length) photos=await fetchWikiPhotos(wiki,'no');
+      if(!photos.length){
+        try{
+          const r=await fetch('https://en.wikipedia.org/api/rest_v1/page/summary/'+encodeURIComponent(wiki));
+          if(r.ok){ const d=await r.json(); if(d.thumbnail?.source) photos=[d.thumbnail.source.replace(/\/\d+px-/,'/640px-')]; }
+        }catch(e){}
+      }
+      if(!photos.length){
+        try{
+          const r=await fetch('https://no.wikipedia.org/api/rest_v1/page/summary/'+encodeURIComponent(wiki));
+          if(r.ok){ const d=await r.json(); if(d.thumbnail?.source) photos=[d.thumbnail.source.replace(/\/\d+px-/,'/640px-')]; }
+        }catch(e){}
+      }
+      return photos;
+    }
+    async function fetchCommonsPhoto(hotelName){
+      try{
+        const badRe=/flag|icon|svg|gif|logo|coat|locator|blank|wikimedia|commons\.svg|map|chart|vapen|våpen|wappen/i;
+        const r1=await fetch(`https://commons.wikimedia.org/w/api.php?action=query&list=search&srnamespace=6&srsearch=${encodeURIComponent(hotelName)}&srlimit=8&format=json&origin=*`);
+        if(!r1.ok) return null;
+        const d1=await r1.json();
+        const hits=(d1.query?.search||[]).map(h=>h.title).filter(t=>!badRe.test(t));
+        if(!hits.length) return null;
+        const r2=await fetch(`https://commons.wikimedia.org/w/api.php?action=query&titles=${encodeURIComponent(hits.slice(0,5).join('|'))}&prop=imageinfo&iiprop=url&iiurlwidth=640&format=json&origin=*`);
+        if(!r2.ok) return null;
+        const d2=await r2.json();
+        const urls=Object.values(d2.query?.pages||{}).map(p=>p.imageinfo?.[0]?.thumburl).filter(Boolean);
+        return urls[0]||null;
+      }catch(e){ return null; }
+    }
+    function makeGallery(arr,mb='12px'){
+      if(!arr.length) return '';
+      if(arr.length===1) return `<img src="${arr[0]}" style="width:100%;max-height:150px;object-fit:contain;background:#f0f4f8;border-radius:10px;margin-bottom:${mb}" onerror="this.style.display='none'">`;
+      return `<div style="display:flex;gap:5px;margin-bottom:${mb}">
+        ${arr.map(p=>`<img src="${p}" style="flex:1;min-width:0;height:130px;object-fit:cover;border-radius:10px" onerror="this.style.display='none'">`).join('')}
+      </div>`;
+    }
+
     async function openHighlight(h){
       const body=document.getElementById('rt-panel-body');
-      body.innerHTML=`<div style="text-align:center;padding:20px;color:#888">Lade Informationen…</div>`;
+      body.innerHTML=`<div style="text-align:center;padding:20px;color:#888">Lade Fotos…</div>`;
       panel.style.transform='translateY(0)';
 
-      let imgHtml='';
+      // 2-3 Fotos + Wikipedia-Beschreibung
+      const photos=await getPhotos(h.wiki);
+      if(!photos.length&&h.img) photos.push(h.img);
       let descHtml='';
       try{
         const res=await fetch('https://en.wikipedia.org/api/rest_v1/page/summary/'+encodeURIComponent(h.wiki));
-        if(res.ok){
-          const data=await res.json();
-          if(data.thumbnail?.source) imgHtml=`<img src="${data.thumbnail.source.replace(/\/\d+px-/,'/640px-')}" style="width:100%;max-height:200px;object-fit:cover;border-radius:12px;margin-bottom:12px">`;
-          if(data.extract) descHtml=`<p style="margin:0 0 14px;font-size:14px;line-height:1.6;color:#333">${data.extract.split('. ').slice(0,3).join('. ')}.</p>`;
-        }
-        if(!imgHtml){
+        if(res.ok){ const d=await res.json(); if(d.extract) descHtml=`<p style="margin:0 0 14px;font-size:14px;line-height:1.6;color:#333">${d.extract.split('. ').slice(0,3).join('. ')}.</p>`; }
+        if(!descHtml){
           const resNo=await fetch('https://no.wikipedia.org/api/rest_v1/page/summary/'+encodeURIComponent(h.wiki));
-          if(resNo.ok){
-            const dataN=await resNo.json();
-            if(dataN.thumbnail?.source) imgHtml=`<img src="${dataN.thumbnail.source.replace(/\/\d+px-/,'/640px-')}" style="width:100%;max-height:200px;object-fit:cover;border-radius:12px;margin-bottom:12px">`;
-            if(!descHtml&&dataN.extract) descHtml=`<p style="margin:0 0 14px;font-size:14px;line-height:1.6;color:#333">${dataN.extract.split('. ').slice(0,3).join('. ')}.</p>`;
-          }
+          if(resNo.ok){ const d=await resNo.json(); if(d.extract) descHtml=`<p style="margin:0 0 14px;font-size:14px;line-height:1.6;color:#333">${d.extract.split('. ').slice(0,3).join('. ')}.</p>`; }
         }
-        if(!imgHtml&&h.img) imgHtml=`<img src="${h.img}" style="width:100%;max-height:200px;object-fit:cover;border-radius:12px;margin-bottom:12px">`;
-      }catch(e){
-        if(h.img) imgHtml=`<img src="${h.img}" style="width:100%;max-height:200px;object-fit:cover;border-radius:12px;margin-bottom:12px">`;
-      }
+      }catch(e){}
 
       body.innerHTML=`
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
           <h3 style="margin:0;font-size:18px;color:#003F87">${h.icon} ${h.name}</h3>
           <button id="rt-panel-close" style="background:none;border:none;font-size:22px;cursor:pointer;color:#888;padding:4px 8px">✕</button>
         </div>
-        ${imgHtml}
+        ${makeGallery(photos,'12px')}
         ${descHtml}
         <div style="background:#f0f4ff;border-radius:12px;padding:12px 14px;margin-bottom:12px">
           <div style="font-weight:700;color:#003F87;margin-bottom:6px">🚗 Anfahrt / Abstecher</div>
@@ -4102,33 +4180,37 @@ const RAG = (() => {
 
     async function openStop(s){
       const body=document.getElementById('rt-panel-body');
-      body.innerHTML=`<div style="text-align:center;padding:20px;color:#888">Lade Informationen…</div>`;
+      body.innerHTML=`<div style="text-align:center;padding:20px;color:#888">Lade Fotos…</div>`;
       panel.style.transform='translateY(0)';
 
-      // Erstes Foto via Wikipedia (zuverlässig), Rest aus photos[]
-      let wikiThumb='';
+      let photos=[];
       if(s.wiki){
-        try{
-          const r=await fetch('https://en.wikipedia.org/api/rest_v1/page/summary/'+encodeURIComponent(s.wiki));
-          if(r.ok){ const d=await r.json(); if(d.thumbnail?.source) wikiThumb=d.thumbnail.source.replace(/\/\d+px-/,'/640px-'); }
-        }catch(e){}
-        if(!wikiThumb){
+        photos=await fetchWikiPhotos(s.wiki,'en');
+        if(!photos.length) photos=await fetchWikiPhotos(s.wiki,'no');
+        // Fallback: Summary-Thumbnail
+        if(!photos.length){
+          try{
+            const r=await fetch('https://en.wikipedia.org/api/rest_v1/page/summary/'+encodeURIComponent(s.wiki));
+            if(r.ok){ const d=await r.json(); if(d.thumbnail?.source) photos=[d.thumbnail.source.replace(/\/\d+px-/,'/640px-')]; }
+          }catch(e){}
+        }
+        if(!photos.length){
           try{
             const r=await fetch('https://no.wikipedia.org/api/rest_v1/page/summary/'+encodeURIComponent(s.wiki));
-            if(r.ok){ const d=await r.json(); if(d.thumbnail?.source) wikiThumb=d.thumbnail.source.replace(/\/\d+px-/,'/640px-'); }
+            if(r.ok){ const d=await r.json(); if(d.thumbnail?.source) photos=[d.thumbnail.source.replace(/\/\d+px-/,'/640px-')]; }
           }catch(e){}
         }
       }
-      // Alle verfügbaren Fotos zusammenstellen (Wikipedia zuerst)
-      const allPhotos=[...new Set([wikiThumb,...(s.photos||[])].filter(Boolean))].slice(0,3);
-      let photosHtml='';
-      if(allPhotos.length===1){
-        photosHtml=`<img src="${allPhotos[0]}" style="width:100%;max-height:210px;object-fit:cover;border-radius:12px;margin-bottom:14px" onerror="this.style.display='none'">`;
-      } else if(allPhotos.length>1){
-        photosHtml=`<div style="display:flex;gap:6px;margin-bottom:14px;overflow-x:auto">
-          ${allPhotos.map(p=>`<img src="${p}" style="flex:0 0 auto;width:${allPhotos.length===2?'calc(50% - 3px)':'calc(33% - 4px)'};height:140px;object-fit:cover;border-radius:10px" onerror="this.style.display='none'">`).join('')}
-        </div>`;
+
+      // Hotel-Gebäudefoto: zuerst Commons-Suche nach Hotel-Name, dann hotelWiki als Fallback
+      let hotelFacadePhoto=null;
+      if(s.hotel) hotelFacadePhoto=await fetchCommonsPhoto(s.hotel);
+      let hotelPhotos=[];
+      if(s.hotelWiki){
+        hotelPhotos=await getPhotos(s.hotelWiki);
       }
+
+      const photoGallery=makeGallery(photos);
 
       const inList=(s.sightsIn||[]).map(t=>`<li style="margin-bottom:5px">${t}</li>`).join('');
       const outList=(s.sightsOut||[]).map(t=>`<li style="margin-bottom:5px">${t}</li>`).join('');
@@ -4141,16 +4223,24 @@ const RAG = (() => {
         </div>`).join('');
 
       body.innerHTML=`
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
           <h3 style="margin:0;font-size:17px;color:#003F87">🏠 ${s.name}</h3>
           <button id="rt-panel-close" style="background:none;border:none;font-size:22px;cursor:pointer;color:#888;padding:4px 8px">✕</button>
         </div>
-        ${photosHtml}
-        <p style="margin:0 0 14px;font-size:14px;line-height:1.6;color:#333">${s.stadtInfo||''}</p>
+        ${photoGallery}
+        <p style="margin:0 0 12px;font-size:14px;line-height:1.6;color:#333">${s.stadtInfo||''}</p>
 
         <div style="background:#e8f4fd;border-radius:12px;padding:12px 14px;margin-bottom:12px">
           <div style="font-weight:700;color:#003F87;margin-bottom:4px">🏨 ${s.hotel}</div>
-          <div style="font-size:13px;color:#333">${s.hotelInfo||''}</div>
+          <div style="font-size:13px;color:#333;margin-bottom:8px">${s.hotelInfo||''}</div>
+          ${hotelFacadePhoto?`<img src="${hotelFacadePhoto}" style="width:100%;max-height:160px;object-fit:contain;background:#f0f4f8;border-radius:8px;margin-bottom:10px" onerror="this.style.display='none'">`:''}
+          <div id="stop-hotel-map" style="height:150px;border-radius:8px;overflow:hidden;margin-bottom:10px;border:1px solid #b8d4ef"></div>
+          ${!hotelFacadePhoto?makeGallery(hotelPhotos,'10px'):''}
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <a href="https://www.google.com/maps/search/${encodeURIComponent(s.hotel)}/@${s.lat},${s.lng},15z" target="_blank" style="display:inline-block;background:#34A853;color:#fff;font-size:11px;font-weight:700;padding:6px 12px;border-radius:20px;text-decoration:none">📍 Google Maps</a>
+            <a href="https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=${s.lat},${s.lng}" target="_blank" style="display:inline-block;background:#1a73e8;color:#fff;font-size:11px;font-weight:700;padding:6px 12px;border-radius:20px;text-decoration:none">📷 Street View</a>
+            ${s.booking?`<a href="https://www.booking.com/search.html?ss=${s.booking}" target="_blank" style="display:inline-block;background:#003580;color:#fff;font-size:11px;font-weight:700;padding:6px 12px;border-radius:20px;text-decoration:none">🏨 Booking.com</a>`:''}
+          </div>
         </div>
 
         ${inList?`<div style="background:#f0fff4;border-radius:12px;padding:12px 14px;margin-bottom:12px">
@@ -4169,6 +4259,13 @@ const RAG = (() => {
         </div>`:''}
 
         <button onclick="document.getElementById('rt-detail-panel').style.transform='translateY(100%)'" style="width:100%;padding:12px;background:#003F87;color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer;margin-top:4px">Schliessen</button>`;
+
+      // Google Maps embed beim Hotel (Strassenansicht)
+      const hotelMapEl=document.getElementById('stop-hotel-map');
+      if(hotelMapEl&&s.lat&&s.lng){
+        const q=encodeURIComponent(s.hotel+', Norway');
+        hotelMapEl.innerHTML=`<iframe src="https://maps.google.com/maps?q=${q}&t=&z=17&ie=UTF8&iwloc=&output=embed" width="100%" height="160" style="border:0;border-radius:8px;display:block" loading="lazy"></iframe>`;
+      }
     }
 
     // Sightseeing Highlights
